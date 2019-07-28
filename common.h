@@ -14,10 +14,23 @@
 #endif
 
 extern const char* gitversion;
+#ifdef __GNUC__
 #define __FILENAME__                                                           \
    (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1    \
                                      : __FILE__)
+#else
+#define __FILENAME__ "TEST"
+#endif
+
+#ifdef __STAT__
+#define REP 1.0
+#else
+#ifdef __GNUC__
 #define REP 5.0
+#else
+#define REP 1.0
+#endif
+#endif
 
 using namespace std;
 
@@ -32,4 +45,3 @@ static void clobber(void* p) { asm volatile("" : : : "memory"); }
 static void escape(void* p) {}
 static void clobber(void* p) {}
 #endif
-extern int iK;

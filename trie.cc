@@ -62,7 +62,7 @@ void trie::initalize(const string& strFileName) {
                 pbtnParent->children[index]->iMax = lStringNumber;
             pbtnParent->children[index]->dTopkMinStaticValue =
                 dStringTopkStaticValue;
-#ifdef _linux_
+#ifdef __linux__
             if (i < strString.length())
 #else
             if (i < strString.length() - 1)

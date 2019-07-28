@@ -6,7 +6,7 @@ EXPR=../expr
 LIBS=
 DEPS = common.h depth.h matching.h meta.h randomstring.h trie.h
 
-ALL: prepare  gitversion.c v1dim
+ALL: prepare  gitversion.c v1dim s1dim
 
 
 prepare:
@@ -18,6 +18,9 @@ gitversion.c: .git/HEAD .git/index
 
 v1dim:trie.cc 1dimv0.cc gitversion.c
 	$(CC) -o $(EXPR)/$@  trie.cc 1dimv0.cc gitversion.c $(CFLAGS) $(LIBS)
+
+s1dim:trie.cc 1dimv0.cc gitversion.c
+		$(CC) -o $(EXPR)/$@  -D__STAT__ trie.cc 1dimv0.cc gitversion.c $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 
