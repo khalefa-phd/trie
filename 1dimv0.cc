@@ -110,7 +110,7 @@ int main(int argc, char** args) {
    cout << "2. Tree index created" << endl;
    srand(time(NULL));
 
-   string strPrefixQeury;
+   string query;
 
    ofstream outfile;
    outfile.open(file_csv + std::to_string(iCount) + "_m1dim_free.csv",
@@ -119,13 +119,13 @@ int main(int argc, char** args) {
    vector<int> Ks{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 10240, 20480};
 
    for (string& r : randoms) {
-      strPrefixQeury = arrStrRandoms[r].substr(0, iCount);
+      query = r.substr(0, iCount);
       for (auto k : Ks) {
          vector<pair<string, string>> results;
-         cout << strPrefixQeury << "\t" << k << endl;
+         cout << query << "\t" << k << endl;
          auto start = std::chrono::high_resolution_clock::now();
          for (size_t i = 0; i < REP; i++) {
-            MatchingBasedMethodForTopK(strPrefixQeury, k);
+            MatchingBasedMethodForTopK(query, k);
             escape(&setMetaResults);
             setMetaResults.clear();
          }
@@ -134,13 +134,13 @@ int main(int argc, char** args) {
              "meta0",
              to_string(chrono::duration<double, nano>(finish - start).count() /
                        REP)));
-         DEPTH<mtcompare0>::run("depth0", results, strPrefixQeury, k);
-         DEPTH<mtcompare1>::run("depth1", results, strPrefixQeury, k);
-         DEPTH<mtcompare3>::run("depth3", results, strPrefixQeury, k);
-         DEPTH<mtcompare4>::run("depth4", results, strPrefixQeury, k);
+         DEPTH<mtcompare0>::run("depth0", results, query, k);
+         DEPTH<mtcompare1>::run("depth1", results, query, k);
+         DEPTH<mtcompare3>::run("depth3", results, query, k);
+         DEPTH<mtcompare4>::run("depth4", results, query, k);
 
-         auto header = strPrefixQeury + "," + to_string(k) + "," +
-                       to_string(strPrefixQeury.length());
+         auto header =
+             query + "," + to_string(k) + "," + to_string(query.length());
          for (auto x : results) {
             auto str = x.first + "," + x.second;
             outfile << __FILENAME__ << "," << gitversion << "," << header << ","
