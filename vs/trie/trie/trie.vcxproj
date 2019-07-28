@@ -117,7 +117,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\1dimv0.cc" />
-    <ClCompile Include="..\..\..\gitversion.c" />
     <ClCompile Include="..\..\..\trie.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

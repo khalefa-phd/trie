@@ -1,24 +1,30 @@
 .vagrant/
 build/
-compile_commands.json
+Debug/
+.vs/
 *.pdf
-plot/*.log
-plot/*.tex
+*.log
+*.tlog
+*.idb
+*.pdb
 .Rhistory
-gitversion.c
-1dim
 # Prerequisites
 *.d
+*.db
+
+gitversion.c
 
 # Compiled Object files
 *.slo
 *.lo
 *.o
 *.obj
-
+*.idb
 # Precompiled Headers
 *.gch
 *.pch
+*.tlog
+*.lastbuildstate
 
 # Compiled Dynamic libraries
 *.so

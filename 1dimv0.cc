@@ -26,12 +26,23 @@ int main(int argc, char** args) {
 #ifdef __STAT__
    cout << "stat gathering mode\n";
 #endif
-
    cout << "1. Start" << endl;
+#ifdef __TEST__
+#ifdef __linux__
+   string dir = "./";
+#else
+   string dir = "../../";
+#endif
+   string fileRecords = dir + "test";
+   string file_csv = dir + "output";
+   string fileRandoms = dir + "random";
+   int iCount = 3;
+#else
    string fileRecords = args[1];
    string file_csv = args[2];
    string fileRandoms = args[3];
    int iCount = stoi(args[4]);
+#endif
 
    vector<string> randoms;
    readRandomFiles(fileRandoms, randoms);
@@ -50,7 +61,12 @@ int main(int argc, char** args) {
    outfile << "****************************************************************"
               "************************** "
            << endl;
+
+#ifndef __TEST__
    vector<int> Ks{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 10240, 20480};
+#else
+   vector<int> Ks{1, 2, 4};
+#endif
 
    for (string& r : randoms) {
       string query = r.substr(0, iCount);
@@ -61,7 +77,8 @@ int main(int argc, char** args) {
          META::run("meta0", results, query, k);
 
          DEPTH<mtcompare0>::run("depth0", results, query, k);
-#ifndef __EXPR__
+
+#if 0
          DEPTH<mtcompare1>::run("depth1", results, query, k);
          DEPTH<mtcompare3>::run("depth3", results, query, k);
          DEPTH<mtcompare4>::run("depth4", results, query, k);

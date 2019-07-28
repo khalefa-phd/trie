@@ -22,18 +22,19 @@ extern const char* gitversion;
 #define __FILENAME__ "TEST"
 #endif
 
+#if !defined(__STAT__) && !defined(__EXPR__)
+#define __TEST__
+#define REP 1
+#endif
+
 #ifdef __STAT__
-#define REP 1.0
+#define REP 1
 #undef __EXPR__
-#else
-#ifndef __EXPR__
-#define __EXPR__
 #endif
-#ifdef __GNUC__
-#define REP 5.0
-#else
-#define REP 1.0
-#endif
+
+#ifdef __EXPR__
+#undef __STAT__
+#define REP 5
 #endif
 
 using namespace std;

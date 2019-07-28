@@ -5,13 +5,15 @@ LDIR =../lib
 EXPR=../expr
 LIBS=
 
-ALL: prepare  gitversion.c v1dim s1dim
+ALL: prepare  gitversion.c v1dim s1dim t1dim
 
 
 prepare:
 	cp expr/*.sh $(EXPR)
 	cp expr/load.sql $(EXPR)
-
+	cp vs/random $(EXPR)
+	cp vs/test $(EXPR)
+	
 gitversion.c: .git/HEAD .git/index
 	echo "const char *gitversion = \"$(shell git rev-parse HEAD)\";" > $@
 
@@ -20,6 +22,9 @@ v1dim:trie.cc 1dimv0.cc gitversion.c
 
 s1dim:trie.cc 1dimv0.cc gitversion.c
 		$(CC) -o $(EXPR)/$@  -D__STAT__ trie.cc 1dimv0.cc gitversion.c $(CFLAGS) $(LIBS)
+
+t1dim:trie.cc 1dimv0.cc gitversion.c
+				$(CC) -o $(EXPR)/$@  -D__TEST__ trie.cc 1dimv0.cc gitversion.c $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 

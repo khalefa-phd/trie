@@ -179,6 +179,9 @@ template <typename K> class DEPTH {
       for (size_t i = 0; i < REP; i++) {
          depth<K> d(q, k);
          escape(&d.setDepthResults);
+#ifdef __TEST__
+         for (auto x : d.setDepthResults) cout << "\t\t" << x << endl;
+#endif
 #ifdef __STAT__
          cnt = d.cnt;
          max_heap = d.max_heap;
