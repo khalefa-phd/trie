@@ -51,10 +51,18 @@ template <typename K> class depth {
       {
          int d = mtCurrent->btnNode->iDepth + 1 + mtCurrent->iNextQueryIndex -
                  1 - mtCurrent->iMatchingIndex;
+         auto lst =
+             trie::Index[d]
+                        [strPrefixQeury[mtCurrent->iNextQueryIndex - 1] - 'a'];
 
-         for (BasicTrieNode* btnNode :
-              trie::Index[d][strPrefixQeury[mtCurrent->iNextQueryIndex - 1] -
-                             'a']) {
+         vector<BasicTrieNode*>::iterator start = std::lower_bound(
+             lst.begin(), lst.end(), mtCurrent->btnNode->iMinNodeID,
+             [](const BasicTrieNode* element, const long value) {
+                return element->iID < value;
+             });
+
+         for (; start != lst.end(); start++) {
+            BasicTrieNode* btnNode = *start;
             update_stat();
             if (btnNode->iID > mtCurrent->btnNode->iMaxNodeID) break;
             if ((btnNode->iID >= mtCurrent->btnNode->iMinNodeID) &&

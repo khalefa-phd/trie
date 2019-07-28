@@ -107,12 +107,24 @@ class meta {
          int iED;
          for (int d = mtM->btnNode->iDepth + 1;
               d <= (mtM->btnNode->iDepth + 1 + b - mtM->iED); d++) {
-            if (trie::Index[d][strPrefixQeury[i] - 'a'].size() == 0) continue;
-            for (BasicTrieNode* btnNode :
-                 trie::Index[d][strPrefixQeury[i] - 'a']) {
-               if ((btnNode->iID < mtM->btnNode->iMinNodeID) ||
-                   (btnNode->iID > mtM->btnNode->iMaxNodeID))
-                  continue;
+
+            auto lst = trie::Index[d][strPrefixQeury[i] - 'a'];
+            vector<BasicTrieNode*>::iterator start = std::lower_bound(
+                lst.begin(), lst.end(), mtM->btnNode->iMinNodeID,
+                [](const BasicTrieNode* element, const long value) {
+                   return element->iID < value;
+                });
+
+            for (; start != lst.end(); start++) {
+               BasicTrieNode* btnNode = *start;
+
+               //  if (trie::Index[d][strPrefixQeury[i] - 'a'].size() == 0)
+               //  continue;
+               // for (BasicTrieNode* btnNode :
+               //   trie::Index[d][strPrefixQeury[i] - 'a']) {
+               // if ((btnNode->iID < mtM->btnNode->iMinNodeID) ||
+               if (btnNode->iID > mtM->btnNode->iMaxNodeID) break;
+               // continue;
                if ((i - 1 - mtM->iMatchingIndex) >
                    (btnNode->iDepth - 1 - mtM->btnNode->iDepth))
                   iED = mtM->iED + (i - 1 - mtM->iMatchingIndex);
