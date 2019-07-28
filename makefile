@@ -16,7 +16,7 @@ gitversion.c: .git/HEAD .git/index
 	echo "const char *gitversion = \"$(shell git rev-parse HEAD)\";" > $@
 
 v1dim:trie.cc 1dimv0.cc gitversion.c
-	$(CC) -o $(EXPR)/$@  trie.cc 1dimv0.cc gitversion.c $(CFLAGS) $(LIBS)
+	$(CC) -o $(EXPR)/$@ -D__EXPR__ trie.cc 1dimv0.cc gitversion.c $(CFLAGS) $(LIBS)
 
 s1dim:trie.cc 1dimv0.cc gitversion.c
 		$(CC) -o $(EXPR)/$@  -D__STAT__ trie.cc 1dimv0.cc gitversion.c $(CFLAGS) $(LIBS)

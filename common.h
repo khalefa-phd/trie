@@ -24,7 +24,11 @@ extern const char* gitversion;
 
 #ifdef __STAT__
 #define REP 1.0
+#undef __EXPR__
 #else
+#ifndef __EXPR__
+#define __EXPR__
+#endif
 #ifdef __GNUC__
 #define REP 5.0
 #else

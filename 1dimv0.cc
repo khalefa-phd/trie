@@ -61,10 +61,11 @@ int main(int argc, char** args) {
          META::run("meta0", results, query, k);
 
          DEPTH<mtcompare0>::run("depth0", results, query, k);
+#ifndef __EXPR__
          DEPTH<mtcompare1>::run("depth1", results, query, k);
          DEPTH<mtcompare3>::run("depth3", results, query, k);
          DEPTH<mtcompare4>::run("depth4", results, query, k);
-
+#endif
          auto header =
              query + "," + to_string(k) + "," + to_string(query.length());
          for (auto x : results) {
