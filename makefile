@@ -4,7 +4,6 @@ CFLAGS=-O3 -std=c++11 -march=native
 LDIR =../lib
 EXPR=../expr
 LIBS=
-DEPS = common.h depth.h matching.h meta.h randomstring.h trie.h
 
 ALL: prepare  gitversion.c v1dim s1dim
 

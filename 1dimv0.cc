@@ -37,20 +37,23 @@ int main(int argc, char** args) {
    readRandomFiles(fileRandoms, randoms);
    trie::initalize(fileRecords);
    cout << "2. Tree index created" << endl;
-   srand(time(NULL));
 
-   string query;
-
+#ifdef __STAT__
+   ofstream triefile("trie.csv");
+   trie::print_stat(triefile);
+   triefile.close();
+#endif
    ofstream outfile;
    outfile.open(file_csv + std::to_string(iCount) + "_1dim.csv",
                 std::ofstream::out | std::ofstream::app);
+
    outfile << "****************************************************************"
               "************************** "
            << endl;
    vector<int> Ks{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 10240, 20480};
 
    for (string& r : randoms) {
-      query = r.substr(0, iCount);
+      string query = r.substr(0, iCount);
       for (auto k : Ks) {
          vector<pair<string, string>> results;
          cout << query << "\t" << k << endl;

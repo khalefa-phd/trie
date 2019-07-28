@@ -41,4 +41,5 @@ class trie {
    static struct BasicTrieNode* root;
    static vector<BasicTrieNode*> Index[100][ALPHABET_SIZE];
    static void initalize(const string& strFileName);
+   static void print_stat(ofstream& o);
 };

@@ -1,5 +1,3 @@
-
-
 #include "trie.h"
 #include "common.h"
 
@@ -92,4 +90,17 @@ void trie::initalize(const string& strFileName) {
    ///////////////////////Sort string nodes lists/////////
    sortStringNodeLists(root);
    //   return 0;
+}
+void trie::print_stat(ofstream& out) {
+   out << root->iMaxNodeID << "\n";
+   for (int i = 1; i < 100; i++) {
+      bool cont = false;
+      out << i;
+      for (int j = 0; j < ALPHABET_SIZE; j++) {
+         if (Index[i][j].size() > 0) cont = true;
+         out << "," << Index[i][j].size();
+      }
+      out << "\n";
+      if (!cont) break;
+   }
 }
