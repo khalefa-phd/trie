@@ -1,0 +1,166 @@
+
+template <typename K> class depth {
+ public:
+   set<string> setDepthResults;
+   long cnt = 0;
+
+   depth(const string& strPrefixQeury, int k) {
+      MatchingTriple* mtMin = new MatchingTriple(0, trie::root, 0, false);
+      mtMin->iNextQueryIndex = 1;
+      mtMin->dTopkStaticValue = trie::root->dTopkMinStaticValue;
+      mapP[1] = mtMin;
+      setMinHeap.insert(mtMin);
+      cnt++;
+      while ((setMinHeap.size() > 0) && setDepthResults.size() < k) {
+         mtMin = *setMinHeap.begin();
+         setMinHeap.erase(mtMin);
+         if (!mtMin->bFinished) {
+            AddNextLevelMatching(strPrefixQeury, mtMin);
+         } else if (!getMinStrings(mtMin, k)) {
+            setMinHeap.insert(mtMin);
+         }
+      }
+      for (pair<long, MatchingTriple*> element : mapP) {
+         if (element.second != nullptr) delete element.second;
+      }
+      mapP.clear();
+   }
+
+ private:
+   set<MatchingTriple*, K> setMinHeap;
+
+   map<BasicTrieNode*, double> mapUserPath;
+   double dMinStaticValue;
+   map<long, MatchingTriple*> mapP;
+   void AddNextLevelMatching(const string& strPrefixQeury,
+                             MatchingTriple* mtCurrent) {
+      //		cout << "Addnext Start"<< endl;
+      bool bFinished = false;
+      if (mtCurrent->iNextQueryIndex == (strPrefixQeury.length()))
+         bFinished = true;
+      int iED;
+      //		cout << "Addnext before outer loop"<< endl;
+      {
+         int d = mtCurrent->btnNode->iDepth + 1 + mtCurrent->iNextQueryIndex -
+                 1 - mtCurrent->iMatchingIndex;
+
+         for (BasicTrieNode* btnNode :
+              trie::Index[d][strPrefixQeury[mtCurrent->iNextQueryIndex - 1] -
+                             'a']) {
+            //				cout << "Addnext In Inner loop"<< endl;
+            if ((btnNode->iID >= mtCurrent->btnNode->iMinNodeID) &&
+                (btnNode->iID <= mtCurrent->btnNode->iMaxNodeID)) {
+               //					cout << "Addnext
+               // Found"<< endl;
+               if ((mtCurrent->iNextQueryIndex - 1 -
+                    mtCurrent->iMatchingIndex) >
+                   (btnNode->iDepth - 1 - mtCurrent->btnNode->iDepth))
+                  iED = mtCurrent->iED + (mtCurrent->iNextQueryIndex - 1 -
+                                          mtCurrent->iMatchingIndex);
+               else
+                  iED = mtCurrent->iED +
+                        (btnNode->iDepth - 1 - mtCurrent->btnNode->iDepth);
+               MatchingTriple* mtNew = new MatchingTriple(
+                   mtCurrent->iNextQueryIndex, btnNode, iED, bFinished);
+               // mtNew->bFinished = bFinished;
+               mtNew->iNextQueryIndex = mtCurrent->iNextQueryIndex;
+               mtNew->dTopkStaticValue = btnNode->dTopkMinStaticValue;
+               mtNew->dTopkOnlineValue = iED;
+               if (!bFinished) mtNew->iNextQueryIndex++;
+               if (mapP.find(btnNode->iID) == mapP.end()) {
+                  mapP[btnNode->iID] = mtNew;
+                  setMinHeap.insert(mtNew);
+               } else if ((mapP[btnNode->iID]->iED +
+                           mapP[btnNode->iID]->iNextQueryIndex -
+                           mapP[btnNode->iID]->iMatchingIndex) > iED) {
+                  mapP[btnNode->iID] = mtNew;
+                  setMinHeap.erase(mapP[btnNode->iID]);
+                  setMinHeap.insert(mtNew);
+               }
+            }
+         }
+      }
+      mtCurrent->bFinished = bFinished;
+      if (!bFinished) {
+         mtCurrent->iNextQueryIndex++;
+         mtCurrent->dTopkOnlineValue =
+             mapP[mtCurrent->btnNode->iID]->iED +
+             mapP[mtCurrent->btnNode->iID]->iNextQueryIndex -
+             mapP[mtCurrent->btnNode->iID]->iMatchingIndex;
+      }
+      setMinHeap.insert(mtCurrent);
+   }
+   const int I_RESULTS_FINISHED = -1000;
+   const int I_ALL_NODE_STRINGS_RETRIVED = 1000;
+   double getMinString(BasicTrieNode* btn, double dTopkStaticValue, int k) {
+      if (btn->isEndOfWord) {
+         if (setDepthResults.find(trie::Dictionary[btn->iMin]) ==
+             setDepthResults.end()) {
+            setDepthResults.insert(trie::Dictionary[btn->iMin]);
+            if (setDepthResults.size() == k) return I_RESULTS_FINISHED;
+         }
+         return 1000.0;
+      }
+      double dNextStaticValue = I_ALL_NODE_STRINGS_RETRIVED;
+      double dChildStaticValue;
+      for (BasicTrieNode* btnqNext : btn->children) {
+         if (btnqNext == NULL) continue;
+         if (mapUserPath.find(btnqNext) == mapUserPath.end())
+            mapUserPath[btnqNext] = btnqNext->dTopkMinStaticValue;
+         dChildStaticValue = mapUserPath[btnqNext];
+         if (dChildStaticValue ==
+             I_ALL_NODE_STRINGS_RETRIVED) // has no strings left
+            continue;
+         if (dChildStaticValue == dTopkStaticValue)
+            dChildStaticValue = getMinString(btnqNext, dTopkStaticValue, k);
+         if (dChildStaticValue < dNextStaticValue)
+            dNextStaticValue = dChildStaticValue;
+         if (dChildStaticValue == I_RESULTS_FINISHED) return dChildStaticValue;
+      }
+      mapUserPath[btn] = dNextStaticValue;
+      return dNextStaticValue;
+   }
+   bool getMinStrings(MatchingTriple* mt, int k) {
+      int i = mt->lNextStringNodeIndex;
+      for (; i < mt->btnNode->lstSortedStringNodes.size(); i++) {
+         if (mt->btnNode->lstSortedStringNodes[i]->dStaticValue ==
+             mt->dTopkStaticValue) {
+            if (setDepthResults.find(
+                    trie::Dictionary[mt->btnNode->lstSortedStringNodes[i]
+                                         ->lStringID]) ==
+                setDepthResults.end()) {
+               setDepthResults.insert(
+                   trie::Dictionary[mt->btnNode->lstSortedStringNodes[i]
+                                        ->lStringID]);
+               if (setDepthResults.size() == k) return true;
+            }
+         } else
+            break;
+      }
+      if (i == mt->btnNode->lstSortedStringNodes.size()) return true;
+      mt->lNextStringNodeIndex = i;
+      mt->dTopkStaticValue = mt->btnNode->lstSortedStringNodes[i]->dStaticValue;
+      return false;
+   }
+};
+
+template <typename K> class DEPTH {
+ public:
+   static void run(string expr, vector<pair<string, string>>& results,
+                   string& q, int k) {
+
+      long cnt;
+      auto start = std::chrono::high_resolution_clock::now();
+      for (size_t i = 0; i < REP; i++) {
+         depth<K> d(q, k);
+         escape(&d.setDepthResults);
+         cnt = d.cnt;
+      }
+      auto finish = std::chrono::high_resolution_clock::now();
+      results.push_back(make_pair(
+          expr,
+          to_string(chrono::duration<double, nano>(finish - start).count() /
+                    REP) +
+              "," + to_string(cnt)));
+   }
+};
