@@ -9,11 +9,13 @@ ALL: prepare  gitversion.c v1dim s1dim t1dim
 
 
 prepare:
+	mkdir -p $(EXPR)
+	mkdir -p ../results
 	cp expr/*.sh $(EXPR)
 	cp expr/load.sql $(EXPR)
 	cp vs/random $(EXPR)
 	cp vs/test $(EXPR)
-	
+
 gitversion.c: .git/HEAD .git/index
 	echo "const char *gitversion = \"$(shell git rev-parse HEAD)\";" > $@
 
