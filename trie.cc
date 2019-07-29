@@ -24,7 +24,6 @@ void trie::initalize(const string& strFileName) {
    string line, strString;
    int iCommaIndex, iFrequency;
    ifstream myfile(strFileName);
-   // ifstream myfile ("c:\\data\\Edit\\Final\\EXP\\meta.txt");
    int iNodeCounter = 1;
    long lStringNumber = 1;
    double dStringTopkStaticValue;
@@ -61,9 +60,10 @@ void trie::initalize(const string& strFileName) {
             pbtnParent->children[index]->dTopkMinStaticValue =
                 dStringTopkStaticValue;
 #ifdef __linux__
-            if (i < strString.length())
-#else
             if (i < strString.length() - 1)
+#else
+
+            if (i < strString.length())
 #endif
                Index[i + 1][strString[i] - 'a'].push_back(
                    pbtnParent->children[index]);

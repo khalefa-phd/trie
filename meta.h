@@ -14,13 +14,13 @@ class meta {
 #endif
 
    meta(string strPrefixQeury, int k) {
-
       int* arrB = new int[strPrefixQeury.length() + 1];
       arrB[0] = 0;
       MatchingTriple* mtTemp = new MatchingTriple(0, trie::root, 0, false);
       mapP[trie::root] = mtTemp;
       for (int i = 0; i < strPrefixQeury.length(); i++) {
          ///////////////First Deducing/////////////////
+         setMetaResults.clear();
          mapH.clear();
          update_stat();
          int iED;
@@ -36,6 +36,9 @@ class meta {
                   continue;
                for (BasicTrieNode* btnNode :
                     trie::Index[d][strPrefixQeury[i] - 'a']) {
+
+                  update_stat();
+
                   if ((btnNode->iID < mtM->btnNode->iMinNodeID) ||
                       (btnNode->iID > mtM->btnNode->iMaxNodeID))
                      continue;
@@ -55,7 +58,7 @@ class meta {
             }
          }
          for (pair<BasicTrieNode*, int> entry : mapH) {
-
+            update_stat();
             mtTemp =
                 new MatchingTriple(i + 1, entry.first, entry.second, false);
             if (mapP.find(entry.first) == mapP.end())
@@ -67,7 +70,7 @@ class meta {
          for (pair<BasicTrieNode*, MatchingTriple*> element : mapP) {
             update_stat();
             MatchingTriple* mtM = element.second;
-            if ((mtM->iED + i - (mtM->iMatchingIndex - 1)) < arrB[i]) {
+            if ((mtM->iED + i - (mtM->iMatchingIndex - 1)) < arrB[i - 1]) {
                for (int w = mtM->btnNode->iMin; w <= mtM->btnNode->iMax; w++) {
                   if (setMetaResults.find(trie::Dictionary[w]) ==
                       setMetaResults.end())
@@ -76,10 +79,10 @@ class meta {
                }
             }
          }
-         if (SecondDeducing(strPrefixQeury, i, arrB[i], k))
-            arrB[i + 1] = arrB[i];
-         else if (SecondDeducing(strPrefixQeury, i, arrB[i] + 1, k))
-            arrB[i + 1] = arrB[i] + 1;
+         if (SecondDeducing(strPrefixQeury, i, arrB[i - 1], k))
+            arrB[i] = arrB[i - 1];
+         else if (SecondDeducing(strPrefixQeury, i, arrB[i - 1] + 1, k))
+            arrB[i] = arrB[i - 1] + 1;
       }
       // clear memory
       delete[] arrB;
@@ -117,14 +120,8 @@ class meta {
 
             for (; start != lst.end(); start++) {
                BasicTrieNode* btnNode = *start;
-
-               //  if (trie::Index[d][strPrefixQeury[i] - 'a'].size() == 0)
-               //  continue;
-               // for (BasicTrieNode* btnNode :
-               //   trie::Index[d][strPrefixQeury[i] - 'a']) {
-               // if ((btnNode->iID < mtM->btnNode->iMinNodeID) ||
+               update_stat();
                if (btnNode->iID > mtM->btnNode->iMaxNodeID) break;
-               // continue;
                if ((i - 1 - mtM->iMatchingIndex) >
                    (btnNode->iDepth - 1 - mtM->btnNode->iDepth))
                   iED = mtM->iED + (i - 1 - mtM->iMatchingIndex);
@@ -142,6 +139,8 @@ class meta {
          }
       }
       for (pair<BasicTrieNode*, int> entry : mapH) {
+         update_stat();
+
          mtTemp = new MatchingTriple(i + 1, entry.first, entry.second, false);
          if (mapP.find(entry.first) == mapP.end())
             mapP[entry.first] = mtTemp;
@@ -170,12 +169,15 @@ class META {
       for (size_t i = 0; i < REP; i++) {
          meta m(q, k);
          escape(&m.setMetaResults);
+#ifdef __TEST__
+         for (auto x : m.setMetaResults) cout << "\t\t" << x << endl;
+         cout << endl;
+#endif
 #ifdef __STAT__
          cnt = m.cnt;
          max_mapp = m.max_mapp;
 #endif
       }
-
       string stat = "";
 #ifdef __STAT__
       stat = "," + to_string(cnt) + "," + to_string(max_mapp);

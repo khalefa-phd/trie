@@ -22,7 +22,7 @@ void readRandomFiles(string fileRandoms, vector<string>& randoms) {
 }
 
 int main(int argc, char** args) {
-
+   cout << "argc" << argc << endl;
 #ifdef __STAT__
    cout << "stat gathering mode\n";
 #endif
@@ -44,10 +44,18 @@ int main(int argc, char** args) {
    int iCount = stoi(args[4]);
 #endif
 
+   trie::initalize(fileRecords);
+
+   cout << "2. Tree index created" << endl;
+
    vector<string> randoms;
    readRandomFiles(fileRandoms, randoms);
-   trie::initalize(fileRecords);
-   cout << "2. Tree index created" << endl;
+   auto start = 0;
+   auto end = randoms.size();
+   if (argc > 4) {
+      start = stoi(args[5]);
+      end = stoi(args[6]);
+   }
 
 #ifdef __STAT__
    ofstream triefile("trie.csv");
@@ -68,7 +76,8 @@ int main(int argc, char** args) {
    vector<int> Ks{1, 2, 4};
 #endif
 
-   for (string& r : randoms) {
+   for (size_t i = start; i < end; i++) {
+      string r = randoms[i];
       string query = r.substr(0, iCount);
       for (auto k : Ks) {
          vector<pair<string, string>> results;
