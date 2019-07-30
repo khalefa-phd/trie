@@ -49,24 +49,21 @@ void trie::initalize(const string& strFileName) {
       if (root->dTopkMinStaticValue > dStringTopkStaticValue)
          root->dTopkMinStaticValue = dStringTopkStaticValue;
       struct BasicTrieNode* pbtnParent = root;
+
+#ifdef __TEST__
+      cout << "length(" << strString << ")=" << strString.length() << "\n";
+#endif
+
       for (int i = 0; i < strString.length(); i++) {
          int index = strString[i] - 'a';
          if (!pbtnParent->children[index]) {
-            pbtnParent->children[index] = new BasicTrieNode(
-                pbtnParent, iNodeCounter++, strString[i], i + 1);
-            pbtnParent->children[index]->iMinNodeID = iNodeCounter - 1;
-            pbtnParent->children[index]->iMin =
-                pbtnParent->children[index]->iMax = lStringNumber;
-            pbtnParent->children[index]->dTopkMinStaticValue =
-                dStringTopkStaticValue;
-#ifdef __linux__
-            if (i < strString.length() - 1)
-#else
-
-            if (i < strString.length())
-#endif
-               Index[i + 1][strString[i] - 'a'].push_back(
-                   pbtnParent->children[index]);
+            BasicTrieNode* n = new BasicTrieNode(pbtnParent, iNodeCounter++,
+                                                 strString[i], i + 1);
+            pbtnParent->children[index] = n;
+            n->iMinNodeID = iNodeCounter - 1;
+            n->iMin = n->iMax = lStringNumber;
+            n->dTopkMinStaticValue = dStringTopkStaticValue;
+            Index[i + 1][index].push_back(n);
          } else {
             pbtnParent->children[index]->iMax = lStringNumber;
             if (pbtnParent->children[index]->dTopkMinStaticValue >
@@ -77,6 +74,7 @@ void trie::initalize(const string& strFileName) {
          pbtnParent = pbtnParent->children[index];
          pbtnParent->lstSortedStringNodes.push_back(snString);
       }
+
       pbtnParent->isEndOfWord = true;
       pbtnParent = pbtnParent->btnParent;
       while (pbtnParent != root) {
@@ -86,6 +84,7 @@ void trie::initalize(const string& strFileName) {
       root->iMaxNodeID = iNodeCounter - 1;
       lStringNumber++;
    }
+
    myfile.close();
    ///////////////////////Sort string nodes lists/////////
    sortStringNodeLists(root);
