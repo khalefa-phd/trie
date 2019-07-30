@@ -22,7 +22,7 @@ void readRandomFiles(string fileRandoms, vector<string>& randoms) {
 }
 
 int main(int argc, char** args) {
-   cout << "argc" << argc << endl;
+
 #ifdef __STAT__
    cout << "stat gathering mode\n";
 #endif
@@ -52,7 +52,8 @@ int main(int argc, char** args) {
    readRandomFiles(fileRandoms, randoms);
    auto start = 0;
    auto end = randoms.size();
-   if (argc > 4) {
+
+   if (argc > 5) {
       start = stoi(args[5]);
       end = stoi(args[6]);
    }

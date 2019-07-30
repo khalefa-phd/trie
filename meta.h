@@ -79,10 +79,10 @@ class meta {
                }
             }
          }
-         if (SecondDeducing(strPrefixQeury, i, arrB[i - 1], k))
-            arrB[i] = arrB[i - 1];
-         else if (SecondDeducing(strPrefixQeury, i, arrB[i - 1] + 1, k))
-            arrB[i] = arrB[i - 1] + 1;
+         if (SecondDeducing(strPrefixQeury, i, arrB[i], k))
+            arrB[i + 1] = arrB[i];
+         else if (SecondDeducing(strPrefixQeury, i, arrB[i] + 1, k))
+            arrB[i + 1] = arrB[i] + 1;
       }
       // clear memory
       delete[] arrB;
@@ -170,7 +170,7 @@ class META {
          meta m(q, k);
          escape(&m.setMetaResults);
 #ifdef __TEST__
-         for (auto x : m.setMetaResults) cout << "\t\t" << x << endl;
+         for (auto x : m.setMetaResults) cout << "\t\t*" << x << endl;
          cout << endl;
 #endif
 #ifdef __STAT__
