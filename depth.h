@@ -1,6 +1,6 @@
 template <typename K> class depth {
  public:
-   set<string> setDepthResults;
+   set<string> results;
 #ifdef __STAT__
    size_t cnt = 0;
    size_t max_mapp = 0;
@@ -21,7 +21,7 @@ template <typename K> class depth {
       mapP[1] = mtMin;
       setMinHeap.insert(mtMin);
       update_stat();
-      while ((setMinHeap.size() > 0) && setDepthResults.size() < k) {
+      while ((setMinHeap.size() > 0) && results.size() < k) {
          mtMin = *setMinHeap.begin();
          setMinHeap.erase(mtMin);
          if (!mtMin->bFinished) {
@@ -80,7 +80,7 @@ template <typename K> class depth {
                    mtCurrent->iNextQueryIndex, btnNode, iED, bFinished);
                mtNew->iNextQueryIndex = mtCurrent->iNextQueryIndex;
                mtNew->dTopkStaticValue = btnNode->dTopkMinStaticValue;
-               mtNew->dTopkOnlineValue = iED;
+               mtNew->dTopkOnlineValue = iED * D_TAU_WEIGHT;
 
                if (!bFinished) mtNew->iNextQueryIndex++;
                if (mapP.find(btnNode->iID) == mapP.end()) {
@@ -101,9 +101,10 @@ template <typename K> class depth {
       if (!bFinished) {
          mtCurrent->iNextQueryIndex++;
          mtCurrent->dTopkOnlineValue =
-             mapP[mtCurrent->btnNode->iID]->iED +
-             mapP[mtCurrent->btnNode->iID]->iNextQueryIndex -
-             mapP[mtCurrent->btnNode->iID]->iMatchingIndex;
+             (mapP[mtCurrent->btnNode->iID]->iED +
+              mapP[mtCurrent->btnNode->iID]->iNextQueryIndex -
+              mapP[mtCurrent->btnNode->iID]->iMatchingIndex) *
+             D_TAU_WEIGHT;
       }
       setMinHeap.insert(mtCurrent);
    }
@@ -113,10 +114,9 @@ template <typename K> class depth {
 
    double getMinString(BasicTrieNode* btn, double dTopkStaticValue, int k) {
       if (btn->isEndOfWord) {
-         if (setDepthResults.find(trie::Dictionary[btn->iMin]) ==
-             setDepthResults.end()) {
-            setDepthResults.insert(trie::Dictionary[btn->iMin]);
-            if (setDepthResults.size() == k) return I_RESULTS_FINISHED;
+         if (results.find(trie::Dictionary[btn->iMin]) == results.end()) {
+            results.insert(trie::Dictionary[btn->iMin]);
+            if (results.size() == k) return I_RESULTS_FINISHED;
          }
          return I_ALL_NODE_STRINGS_RETRIVED;
       }
@@ -146,14 +146,13 @@ template <typename K> class depth {
       for (; i < mt->btnNode->lstSortedStringNodes.size(); i++) {
          if (mt->btnNode->lstSortedStringNodes[i]->dStaticValue ==
              mt->dTopkStaticValue) {
-            if (setDepthResults.find(
+            if (results.find(
                     trie::Dictionary[mt->btnNode->lstSortedStringNodes[i]
-                                         ->lStringID]) ==
-                setDepthResults.end()) {
-               setDepthResults.insert(
+                                         ->lStringID]) == results.end()) {
+               results.insert(
                    trie::Dictionary[mt->btnNode->lstSortedStringNodes[i]
                                         ->lStringID]);
-               if (setDepthResults.size() == k) return true;
+               if (results.size() == k) return true;
             }
          } else
             break;
@@ -178,9 +177,9 @@ template <typename K> class DEPTH {
       auto start = std::chrono::high_resolution_clock::now();
       for (size_t i = 0; i < REP; i++) {
          depth<K> d(q, k);
-         escape(&d.setDepthResults);
+         escape(&d.results);
 #ifdef __TEST__
-         for (auto x : d.setDepthResults) cout << "\t\t" << x << endl;
+         for (auto x : d.results) cout << "\t\t" << x << endl;
 #endif
 #ifdef __STAT__
          cnt = d.cnt;

@@ -8,6 +8,13 @@ struct MatchingTriple {
    double dTopkOnlineValue;
    long lNextStringNodeIndex;
 
+#ifdef __1DIM__
+   inline double cost() const { return dTopkOnlineValue; }
+#endif
+#ifdef __2DIM__
+   inline double cost() const { return dTopkOnlineValue + dTopkStaticValue; }
+#endif
+
    MatchingTriple(int MatchingIndex, BasicTrieNode* node, int ed, bool finished)
        : bFinished{finished}, dTopkStaticValue{0},
          dTopkOnlineValue{D_TOP_K_MAX_VALUE}, iMatchingIndex{MatchingIndex},
@@ -16,7 +23,7 @@ struct MatchingTriple {
 
 struct mtcompare0 {
    bool operator()(const MatchingTriple* mt, const MatchingTriple* o) const {
-      if (mt->dTopkOnlineValue == o->dTopkOnlineValue) {
+      if (mt->cost() == o->cost()) {
          if (mt->iNextQueryIndex == o->iNextQueryIndex) {
             if (mt->btnNode->cnt() > o->btnNode->cnt()) return true;
             return false;
@@ -24,7 +31,7 @@ struct mtcompare0 {
             return true;
          else
             return false;
-      } else if (mt->dTopkOnlineValue < o->dTopkOnlineValue)
+      } else if (mt->cost() < o->cost())
          return true;
       else
          return false;

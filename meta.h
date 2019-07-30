@@ -21,30 +21,8 @@ class meta {
       }
    }
 
- private:
-   void dim2(string& query, int k) {
-      incremental(query, k);
-      auto lst = trie::root->lstSortedStringNodes;
-      vector<pair<long, double>> r;
-      for (pair<BasicTrieNode*, MatchingTriple*> element : mapP) {
-         MatchingTriple* mtCurrent = element.second;
-         double v = mtCurrent->dTopkOnlineValue =
-             (mtCurrent->iED + mtCurrent->iNextQueryIndex -
-              mtCurrent->iMatchingIndex) *
-             D_TAU_WEIGHT;
-         BasicTrieNode* n = mtCurrent->btnNode;
-
-         for (auto i = n->iMin; i < n->iMax; i++) {
-            r.push_back(make_pair(i, lst[i]->dStaticValue + v));
-         }
-      }
-      auto it = r.begin();
-      for (int i = 0; i < k; i++) {
-         results.insert(trie::Dictionary[it->first]);
-         it++;
-      }
-   }
-
+ protected:
+   meta() {}
    void incremental(string& query, int k) {
       int* arrB = new int[query.length() + 1];
       arrB[0] = 0;
@@ -181,6 +159,32 @@ class meta {
 
    map<BasicTrieNode*, MatchingTriple*> mapP;
    map<BasicTrieNode*, int> mapH;
+};
+
+class meta2 : public meta {
+ public:
+   meta2(string& query, int k) {
+      incremental(query, k);
+      auto lst = trie::root->lstSortedStringNodes;
+      vector<pair<long, double>> r;
+      for (pair<BasicTrieNode*, MatchingTriple*> element : mapP) {
+         MatchingTriple* mtCurrent = element.second;
+         double v = mtCurrent->dTopkOnlineValue =
+             (mtCurrent->iED + mtCurrent->iNextQueryIndex -
+              mtCurrent->iMatchingIndex) *
+             D_TAU_WEIGHT;
+         BasicTrieNode* n = mtCurrent->btnNode;
+
+         for (auto i = n->iMin; i < n->iMax; i++) {
+            r.push_back(make_pair(i, lst[i]->dStaticValue + v));
+         }
+      }
+      auto it = r.begin();
+      for (int i = 0; i < k; i++) {
+         results.insert(trie::Dictionary[it->first]);
+         it++;
+      }
+   }
 };
 
 class META {
