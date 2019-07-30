@@ -40,8 +40,18 @@ extern const char* gitversion;
 using namespace std;
 
 const int ALPHABET_SIZE = 26;
-const double D_TOP_K_MAX_VALUE = 1000, D_TAU_WEIGHT = 1.0,
-             D_LENGTH_WEIGHT = 0.0, D_FREQUENCY_WEIGHT = 0.0;
+#ifdef __1DIM__
+const int D_TOP_K_MAX_VALUE = 1000, D_TAU_WEIGHT = 1, D_LENGTH_WEIGHT = 0,
+          D_FREQUENCY_WEIGHT = 0;
+#else
+#ifdef __2DIM__
+const double D_TOP_K_MAX_VALUE = 1000, D_TAU_WEIGHT = 0.5,
+             D_LENGTH_WEIGHT = 0.25, D_FREQUENCY_WEIGHT = 0.25;
+
+#else
+#error Define either 1dim or 2 dim
+#endif
+#endif
 
 #ifdef __GNUC__
 static void escape(void* p) { asm volatile("" : : "g"(p) : "memory"); }

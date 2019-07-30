@@ -72,7 +72,7 @@ int main(int argc, char** args) {
            << endl;
 
 #ifndef __TEST__
-   vector<int> Ks{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 10240, 20480};
+   vector<int> Ks{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 #else
    vector<int> Ks{1, 2, 4};
 #endif

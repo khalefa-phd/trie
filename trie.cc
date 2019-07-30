@@ -63,7 +63,6 @@ void trie::initalize(const string& strFileName) {
             n->iMinNodeID = iNodeCounter - 1;
             n->iMin = n->iMax = lStringNumber;
             n->dTopkMinStaticValue = dStringTopkStaticValue;
-	if(i<strString.length()-1)
             Index[i + 1][index].push_back(n);
          } else {
             pbtnParent->children[index]->iMax = lStringNumber;
