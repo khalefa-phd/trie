@@ -11,6 +11,8 @@ ALL: prepare  gitversion.c v1dim v2dim
 
 
 prepare:
+	mkdir -p ../data
+	cp data/* ../data
 	mkdir -p $(EXPR)
 	mkdir -p ../results
 	cp expr/*.sh $(EXPR)
