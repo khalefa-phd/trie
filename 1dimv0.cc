@@ -89,7 +89,7 @@ int main(int argc, char** args) {
          vector<pair<string, string>> results;
          cout << query << "\t" << k << endl;
 
-         META::run("meta0", results, query, k);
+         // META::run("meta0", results, query, k);
 
          DEPTH<mtcompare0>::run("depth0", results, query, k);
          DEPTH<mtcompare0>::irun("idepth0", results, query, k);

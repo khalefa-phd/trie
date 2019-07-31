@@ -83,7 +83,7 @@ class meta {
          for (pair<BasicTrieNode*, MatchingTriple*> element : mapP) {
             update_stat();
             MatchingTriple* mtM = element.second;
-            if ((mtM->iED + i - (mtM->iMatchingIndex - 1)) < arrB[i - 1]) {
+            if ((mtM->iED + i - (mtM->iMatchingIndex - 1)) < arrB[i ]) {
                for (int w = mtM->btnNode->iMin; w <= mtM->btnNode->iMax; w++) {
                   if (results.find(trie::Dictionary[w]) == results.end())
                      results.insert(trie::Dictionary[w]);
