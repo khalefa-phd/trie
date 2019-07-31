@@ -77,7 +77,7 @@ int main(int argc, char** args) {
            << endl;
 
 #ifndef __TEST__
-   vector<int> Ks{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
+   vector<int> Ks{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024,10240, 20480};
 #else
    vector<int> Ks{1, 2, 4};
 #endif
@@ -89,20 +89,16 @@ int main(int argc, char** args) {
          vector<pair<string, string>> results;
          cout << query << "\t" << k << endl;
 
-         // META::run("meta0", results, query, k);
+          if(k<=1024)META::run("meta0", results, query, k);
 
          DEPTH<mtcompare0>::run("depth0", results, query, k);
          DEPTH<mtcompare0>::irun("idepth0", results, query, k);
-#if 0
-         DEPTH<mtcompare1>::run("depth1", results, query, k);
-         DEPTH<mtcompare3>::run("depth3", results, query, k);
-         DEPTH<mtcompare4>::run("depth4", results, query, k);
-#endif
+
          auto header =
              query + "," + to_string(k) + "," + to_string(query.length());
          for (auto x : results) {
             auto str = x.first + "," + x.second;
-            outfile << __FILENAME__ << "," << gitversion << "," << header << ","
+            outfile << __FILENAME__ << "," << gitversion << "," <<"," <<EXPR <<"," << header << ","
                     << str << endl;
          }
          outfile.flush();

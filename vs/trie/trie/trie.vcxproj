@@ -116,7 +116,7 @@
     <ClInclude Include="..\..\..\trie.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\1dimv0.cc" />
+    <ClCompile Include="..\..\..\expr.cc" />
     <ClCompile Include="..\..\..\trie.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

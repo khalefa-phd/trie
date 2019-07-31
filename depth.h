@@ -204,29 +204,33 @@ template <typename K> class DEPTH {
                     string& q, int k) {
 
 #ifdef __STAT__
-      size_t cnt;
-      size_t max_heap;
-      size_t max_mapp;
+      size_t cnt=0;
+      size_t max_heap=0;
+      size_t max_mapp=0;
 #endif
       auto start = std::chrono::high_resolution_clock::now();
 
       for (size_t i = 0; i < REP; i++) {
-         for (int j = 1; j < q.length(); j++) {
+         for (int j = 1; j <= q.length(); j++) {
             string sq = q.substr(0, j);
+#ifdef __DEBUG__
+            cout << "\t\t" << sq << endl;
+#endif
             depth<K> d(sq, k);
             escape(&d.results);
-         }
+
 #ifdef __TEST__
-         for (auto x : d.results) cout << "\t\t" << x << endl;
+            for (auto x : d.results) cout << "\t\t\t" << x << endl;
+            cout << endl;
 #endif
 
 #ifdef __STAT__
-         cnt = d.cnt;
-         max_heap = d.max_heap;
-         max_mapp = d.max_mapp;
+            cnt += d.cnt;
+            max_heap = max(max_heap,d.max_heap);
+            max_mapp = max(max_mapp,d.max_mapp);
 #endif
+         }
       }
-
       auto finish = std::chrono::high_resolution_clock::now();
       string stat = "";
 #ifdef __STAT__
