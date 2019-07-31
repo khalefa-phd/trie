@@ -199,4 +199,44 @@ template <typename K> class DEPTH {
                     REP) +
               stat));
    }
+
+   static void irun(string expr, vector<pair<string, string>>& results,
+                    string& q, int k) {
+
+#ifdef __STAT__
+      size_t cnt;
+      size_t max_heap;
+      size_t max_mapp;
+#endif
+      auto start = std::chrono::high_resolution_clock::now();
+
+      for (size_t i = 0; i < REP; i++) {
+         for (int j = 1; j < q.length(); j++) {
+            string sq = q.substr(0, j);
+            depth<K> d(sq, k);
+            escape(&d.results);
+         }
+#ifdef __TEST__
+         for (auto x : d.results) cout << "\t\t" << x << endl;
+#endif
+
+#ifdef __STAT__
+         cnt = d.cnt;
+         max_heap = d.max_heap;
+         max_mapp = d.max_mapp;
+#endif
+      }
+
+      auto finish = std::chrono::high_resolution_clock::now();
+      string stat = "";
+#ifdef __STAT__
+      stat = "," + to_string(cnt) + "," + to_string(max_heap) + "," +
+             to_string(max_mapp);
+#endif
+      results.push_back(make_pair(
+          expr,
+          to_string(chrono::duration<double, nano>(finish - start).count() /
+                    REP) +
+              stat));
+   }
 };

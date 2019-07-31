@@ -64,8 +64,13 @@ int main(int argc, char** args) {
    triefile.close();
 #endif
    ofstream outfile;
+#ifdef __1DIM__
    outfile.open(file_csv + std::to_string(iCount) + "_1dim.csv",
                 std::ofstream::out | std::ofstream::app);
+#else
+   outfile.open(file_csv + std::to_string(iCount) + "_2dim.csv",
+                std::ofstream::out | std::ofstream::app);
+#endif
 
    outfile << "****************************************************************"
               "************************** "
@@ -87,7 +92,7 @@ int main(int argc, char** args) {
          META::run("meta0", results, query, k);
 
          DEPTH<mtcompare0>::run("depth0", results, query, k);
-
+         DEPTH<mtcompare0>::irun("idepth0", results, query, k);
 #if 0
          DEPTH<mtcompare1>::run("depth1", results, query, k);
          DEPTH<mtcompare3>::run("depth3", results, query, k);

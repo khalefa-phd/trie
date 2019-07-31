@@ -23,6 +23,7 @@ class meta {
 
  protected:
    meta() {}
+
    void incremental(string& query, int k) {
       int* arrB = new int[query.length() + 1];
       arrB[0] = 0;
@@ -95,9 +96,8 @@ class meta {
          else if (SecondDeducing(query, i, arrB[i] + 1, k))
             arrB[i + 1] = arrB[i] + 1;
       }
-      // clear memory
+
       delete[] arrB;
-      return;
    }
 
    bool SecondDeducing(string query, int i, int b, int k) {
@@ -199,7 +199,11 @@ class META {
 
       auto start = std::chrono::high_resolution_clock::now();
       for (size_t i = 0; i < REP; i++) {
+#ifdef __1DIM__
          meta m(q, k);
+#else
+         meta2 m(q, k);
+#endif
          escape(&m.results);
 #ifdef __TEST__
          for (auto x : m.results) cout << "\t\t*" << x << endl;
