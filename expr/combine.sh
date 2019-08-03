@@ -5,10 +5,10 @@
 
 mkdir -p combined
 
-cat results/auth*1dim*csv combined/A_1dim.csv
-cat results/auth*2dim*csv combined/A_2dim.csv
-cat results/words*1dim*csv combined/W_1dim.csv
-cat results/words*2dim*csv combined/W_2dim.csv
+cat results/auth*1dim*csv > combined/A_1dim.csv
+cat results/auth*2dim*csv > combined/A_2dim.csv
+cat results/words*1dim*csv > combined/W_1dim.csv
+cat results/words*2dim*csv > combined/W_2dim.csv
 
 grep -v "\*\*\*" combined/A_1dim.csv |  sed 's/expr.cc/auth1d/g' |sed 's/,,/,/g' > combined/pA_1dim.csv
 
