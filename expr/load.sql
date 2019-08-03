@@ -1,22 +1,23 @@
-create table expr (expr varchar(20), version varchar(50), str varchar(100), k int, q int, alg varchar(10), t double);
---create table summary (expr varchar(20), k int, q int, meta double, depth double);
+--create table expr (expr varchar(20), version varchar(50), s1 varchar(10), str varchar(100), k int, q int, alg varchar(10), t double);
+create table expr_stat (expr varchar(20), version varchar(50), s1 varchar(10), str varchar(100), k int, q int, alg varchar(10), t double, visited int, maxheap int, maxmap int );
+
+create table summary (expr varchar(20), k int, q int, alg varchar(10), cnt int, runtime double);
 
 .separator ,
 
-.import auth_1dim.csv expr
+.import res.csv expr_stat
 
---insert into summary select expr, k,q, avg(meta), avg(depth) from expr group by expr, q, k;
--- select s1.k, s1.q, s1.meta, s1.depth, s2.meta, s2.depth, s3.meta, s3.depth from summary s1, summary s2, summary  s3
--- where s1.q=s2.q and s1.q=s3.q and s1.k =s2.k and s1.k=s3.k and s1.expr='m1dimo.cc' and s2.expr='m1dim.cc'
--- and s3.expr='m1dim_free.cc'
-
---.headers on
---.mode csv
---.output summary.csv
+insert into summary select expr, k, q, alg, count(*) , avg(t) from expr_stat 
+where visited is not null
+group by expr, q, k,alg order by expr, k,q;
 
 
---select s1.q, s1.k, s1.meta, s1.depth,s2.meta, s2.depth from summary s1, summary s2 where s1.expr='1dimv0.cc' and s2.expr='m1dimo.cc' and s1.q=s2.q and s1.k=s2.k;
 
 
---.output summary.csv
---select * from summary;
+.headers on
+.mode csv
+.output summary.csv
+
+
+
+select s1.expr, s1.k,s1.q, s1.alg, s2.alg, s3.alg, s1.runtime, s2.runtime, s3.runtime  from summary s1 left outer join  summary s2 on (s1.expr=s2.expr and s1.k=s2.k and s1.q=s2.q) left outer join  summary s3 on  (s2.expr=s3.expr and s2.k=s3.k and  s2.q=s3.q) where  s1.alg>s2.alg and s2.alg >s3.alg;
