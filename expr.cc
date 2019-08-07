@@ -77,7 +77,7 @@ int main(int argc, char** args) {
            << endl;
 
 #ifndef __TEST__
-   vector<int> Ks{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024,10240, 20480};
+   vector<int> Ks{ 1024,10240, 20480};
 #else
    vector<int> Ks{1, 2, 4};
 #endif
@@ -89,10 +89,10 @@ int main(int argc, char** args) {
          vector<pair<string, string>> results;
          cout << query << "\t" << k << endl;
 
-         if(k<=1024)META::run("meta0", results, query, k);
+	META::run("meta0", results, query, k);
 
-//         DEPTH<mtcompare0>::run("depth0", results, query, k);
-  //       DEPTH<mtcompare0>::irun("idepth0", results, query, k);
+   DEPTH<mtcompare0>::run("depth0", results, query, k);
+      DEPTH<mtcompare0>::irun("idepth0", results, query, k);
 
          auto header =
              query + "," + to_string(k) + "," + to_string(query.length());

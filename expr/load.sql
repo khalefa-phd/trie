@@ -21,3 +21,12 @@ group by expr, q, k,alg order by expr, k,q;
 
 
 select s1.expr, s1.k,s1.q, s1.alg, s2.alg, s3.alg, s1.runtime, s2.runtime, s3.runtime  from summary s1 left outer join  summary s2 on (s1.expr=s2.expr and s1.k=s2.k and s1.q=s2.q) left outer join  summary s3 on  (s2.expr=s3.expr and s2.k=s3.k and  s2.q=s3.q) where  s1.alg>s2.alg and s2.alg >s3.alg;
+
+
+create table results as 
+select * from 
+(select s1.expr, s1.k,s1.q, s1.runtime as "meta0", s2.runtime as "idepth", s3.runtime as "depth"  from summary s1 left outer join  summary s2 on (s1.expr=s2.expr and s1.k=s2.k and s1.q=s2.q) left outer join  summary s3 on  (s2.expr=s3.expr and s2.k=s3.k and  s2.q=s3.q) where  s1.alg>s2.alg and s2.alg >s3.alg
+union
+select s1.expr, s1.k,s1.q, null as "meta0", s1.runtime "idepth", s2.runtime as "depth"  from summary s1 left outer join  summary s2 on (s1.expr=s2.expr and s1.k=s2.k and s1.q=s2.q) where  s1.alg>s2.alg and s1.k>1024)
+
+order by expr;
