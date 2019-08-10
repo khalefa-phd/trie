@@ -39,14 +39,20 @@ extern const char* gitversion;
 
 using namespace std;
 
+#ifdef __TEST__
+#ifndef __GNUC__
+#define __2DIM__
+#endif
+#endif
+
 const int ALPHABET_SIZE = 26;
 #ifdef __1DIM__
-const string EXPR="1DIM";
+const string EXPR = "1DIM";
 const int D_TOP_K_MAX_VALUE = 1000, D_TAU_WEIGHT = 1, D_LENGTH_WEIGHT = 0,
           D_FREQUENCY_WEIGHT = 0;
 #else
 #ifdef __2DIM__
-const string EXPR="2DIM";
+const string EXPR = "2DIM";
 const double D_TOP_K_MAX_VALUE = 1000, D_TAU_WEIGHT = 0.5,
              D_LENGTH_WEIGHT = 0.25, D_FREQUENCY_WEIGHT = 0.25;
 

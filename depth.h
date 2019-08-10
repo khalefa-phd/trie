@@ -204,9 +204,9 @@ template <typename K> class DEPTH {
                     string& q, int k) {
 
 #ifdef __STAT__
-      size_t cnt=0;
-      size_t max_heap=0;
-      size_t max_mapp=0;
+      size_t cnt = 0;
+      size_t max_heap = 0;
+      size_t max_mapp = 0;
 #endif
       auto start = std::chrono::high_resolution_clock::now();
 
@@ -226,8 +226,8 @@ template <typename K> class DEPTH {
 
 #ifdef __STAT__
             cnt += d.cnt;
-            max_heap = max(max_heap,d.max_heap);
-            max_mapp = max(max_mapp,d.max_mapp);
+            max_heap = max(max_heap, d.max_heap);
+            max_mapp = max(max_mapp, d.max_mapp);
 #endif
          }
       }

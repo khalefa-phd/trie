@@ -5,7 +5,7 @@ LDIR =../lib
 EXPR=../expr
 LIBS=
 
-ALL: prepare gitversion.c v1dim v2dim s1dim t1dim t2dim s2dim
+ALL:  gitversion.c v1dim v2dim s1dim t1dim t2dim s2dim
 
 
 prepare:
