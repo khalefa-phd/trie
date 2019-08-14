@@ -34,6 +34,7 @@ struct BasicTrieNode {
 
    int cnt() const;
 };
+ostream & operator<< (ostream & out, const BasicTrieNode& n); 
 
 class trie {
  public:

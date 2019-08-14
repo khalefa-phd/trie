@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cassert>
 #include <chrono>
 #include <fstream>
@@ -40,8 +41,9 @@ extern const char* gitversion;
 using namespace std;
 
 #ifdef __TEST__
+#define __DEBUG__
 #ifndef __GNUC__
-#define __2DIM__
+#define __1DIM__
 #endif
 #endif
 

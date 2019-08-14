@@ -27,12 +27,15 @@
     <ClInclude Include="..\..\..\trie.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\matchingtriple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\1dimv0.cc">
+    <ClCompile Include="..\..\..\trie.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\trie.cc">
+    <ClCompile Include="..\..\..\expr.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

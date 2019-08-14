@@ -10,6 +10,11 @@ const char* gitversion = "000";
 #include "depth.h"
 #include "meta.h"
 
+ostream & operator << (ostream &out, const MatchingTriple &t) {
+	out << "(" << *(t.btnNode) << "," << t.iED << "," << t.iMatchingIndex << ")";
+	return out;
+}
+
 void readRandomFiles(string fileRandoms, vector<string>& randoms) {
    ifstream file;
    string strRecord;
@@ -79,7 +84,7 @@ int main(int argc, char** args) {
 #ifndef __TEST__
    vector<int> Ks{1024, 10240, 20480};
 #else
-   vector<int> Ks{1, 2, 4};
+   vector<int> Ks{ 4};
 #endif
    string old_query = "";
    for (size_t i = start; i < end; i++) {
@@ -110,5 +115,9 @@ int main(int argc, char** args) {
    outfile.close();
    cout << ("3. Finished Successfully") << endl;
    cout << endl;
+#ifdef _WIN32
+   char x;
+   cin >>x;
+#endif
    return 0;
 }

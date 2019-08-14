@@ -1,3 +1,4 @@
+#pragma once
 struct MatchingTriple {
    int iMatchingIndex;
    BasicTrieNode* btnNode;
@@ -20,6 +21,7 @@ struct MatchingTriple {
          dTopkOnlineValue{D_TOP_K_MAX_VALUE}, iMatchingIndex{MatchingIndex},
          btnNode{node}, iED{ed}, lNextStringNodeIndex{0} {}
 };
+ostream & operator << (ostream &out, const MatchingTriple &t);
 
 struct mtcompare0 {
    bool operator()(const MatchingTriple* mt, const MatchingTriple* o) const {

@@ -20,6 +20,12 @@ void sortStringNodeLists(BasicTrieNode* btn) {
 
 int BasicTrieNode::cnt() const { return iMax - iMin; }
 
+ostream & operator<< (ostream & out, const BasicTrieNode& n) {
+	out << "(" << n.iID << "," << n.iDepth << ", " << n.btnCh << ")";
+	return out;
+}
+
+
 void trie::initalize(const string& strFileName) {
    string line, strString;
    int iCommaIndex, iFrequency;
