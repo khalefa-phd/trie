@@ -1,9 +1,9 @@
 class meta {
 public:
-	set<pair<string,int>> results() {
+	set<pair<string, int>> results() {
 		set<pair<string, int>> r;
-		for (auto& x : res) r.insert({trie::Dictionary[x.first], x.second
-	});
+		for (auto& x : res) r.insert({ trie::Dictionary[x.first], x.second
+		});
 		return r;
 	}
 	map<size_t, int> res;
@@ -20,33 +20,33 @@ public:
 	inline void update_stat(bool inc = true) {}
 #endif
 
-	meta(string query, int k) { 
+	meta(string query, int k) {
 		this->k = k;
 		this->query = query;
 		arrB = new int[query.length() + 1];
-		batch(); 
+		batch();
 	}
 
 	~meta() {
 		for (pair<BasicTrieNode*, MatchingTriple*> element : mapP) {
 			if (element.second != nullptr) delete element.second;
 		}
-		delete []arrB;
+		delete[]arrB;
 	}
 
-	pair<size_t, int> getnext() {
+	pair<size_t, int> next() {
 		static int cnt = 0;
 		cnt++;
 		int i = query.length() - 1;
 		k++;
 		map<size_t, int> r;
-		if (SecondDeducing(i, arrB[i],r))
+		if (SecondDeducing(i, arrB[i], r))
 			;
-		else if (SecondDeducing(i, arrB[i] + 1 ,r))
+		else if (SecondDeducing(i, arrB[i] + 1, r))
 			arrB[i]++;
 		else
 			return make_pair(-1, -1);
-		
+
 		return *r.begin();
 	}
 
@@ -75,12 +75,12 @@ protected:
 					update_stat();
 					auto lst = trie::Index[d][query[i] - 'a'];
 
-				/*	vector<BasicTrieNode*>::iterator start = std::lower_bound(
-						lst.begin(), lst.end(), mtM->btnNode->iMinNodeID,
-						[](const BasicTrieNode* element, const long value) {
-						return element->iID < value;
-					});
-					*/
+					/*	vector<BasicTrieNode*>::iterator start = std::lower_bound(
+							lst.begin(), lst.end(), mtM->btnNode->iMinNodeID,
+							[](const BasicTrieNode* element, const long value) {
+							return element->iID < value;
+						});
+						*/
 					auto start = lst.begin();
 					for (; start != lst.end(); start++) {
 						BasicTrieNode* btnNode = *start;
@@ -124,7 +124,7 @@ protected:
 						if (res.find(w) == res.end())
 							res.insert(make_pair(w,
 								mtM->iED + i - (mtM->iMatchingIndex - 1)
-							/*	element.second->dTopkOnlineValue*/
+								/*	element.second->dTopkOnlineValue*/
 							));
 						if (res.size() >= k) { break; }
 					}
@@ -132,25 +132,25 @@ protected:
 			}
 
 			map<size_t, int> r;
-			if (SecondDeducing( i, arrB[i],r))
+			if (SecondDeducing(i, arrB[i], r))
 				arrB[i + 1] = arrB[i];
-			else if (SecondDeducing( i, arrB[i] + 1,r))
+			else if (SecondDeducing(i, arrB[i] + 1, r))
 				arrB[i + 1] = arrB[i] + 1;
 		}
-		
+
 	}
 
-	bool SecondDeducing( int i, int b, map<size_t,int> &r) {
+	bool SecondDeducing(int i, int b, map<size_t, int> &r) {
 		MatchingTriple* mtTemp;
 		map<BasicTrieNode*, int> mapH;
-#ifdef __DEBUG__
+#ifdef __DEBUG2__
 		cout << "SecondDeducing\n";
 #endif
 		for (pair<BasicTrieNode*, MatchingTriple*> element : mapP) {
-#ifdef __DEBUG__
+#ifdef __DEBUG2__
 			{
 				MatchingTriple *mt = element.second;
-				cout << "\t" <<(*mt) << "\n";
+				cout << "\t" << (*mt) << "\n";
 			}
 #endif
 			update_stat();
@@ -170,12 +170,12 @@ protected:
 				d <= (mtM->btnNode->iDepth + 1 + b - mtM->iED); d++) {
 
 				auto lst = trie::Index[d][query[i] - 'a'];
-	/*			vector<BasicTrieNode*>::iterator start = std::lower_bound(
-					lst.begin(), lst.end(), mtM->btnNode->iMinNodeID,
-					[](const BasicTrieNode* element, const long value) {
-					return element->iID < value;
-				});
-				*/
+				/*			vector<BasicTrieNode*>::iterator start = std::lower_bound(
+								lst.begin(), lst.end(), mtM->btnNode->iMinNodeID,
+								[](const BasicTrieNode* element, const long value) {
+								return element->iID < value;
+							});
+							*/
 				auto start = lst.begin();
 				for (; start != lst.end(); start++) {
 					BasicTrieNode* btnNode = *start;
@@ -183,7 +183,7 @@ protected:
 					if (btnNode->iID < mtM->btnNode->iMinNodeID) continue;
 					if (btnNode->iID > mtM->btnNode->iMaxNodeID) break;
 
-//					if (btnNode->iID > mtM->btnNode->iMaxNodeID) break;
+					//					if (btnNode->iID > mtM->btnNode->iMaxNodeID) break;
 					if ((i - 1 - mtM->iMatchingIndex) >
 						(btnNode->iDepth - 1 - mtM->btnNode->iDepth))
 						iED = mtM->iED + (i - 1 - mtM->iMatchingIndex);
@@ -197,7 +197,9 @@ protected:
 							mapH[btnNode] = iED;
 						}
 					}
+#ifdef __DEBUG2__
 					cout << "\t\t" << (*btnNode) << "---" << iED << "\n";
+#endif
 				}
 			}
 		}
@@ -218,30 +220,53 @@ protected:
 	map<BasicTrieNode*, int> mapH;
 };
 
-class meta2 : public meta {
-public:
-	meta2(string& query, int k) {
-		//incremental(query, k);
-		auto lst = trie::root->lstSortedStringNodes;
-		vector<pair<long, double>> r;
-		for (pair<BasicTrieNode*, MatchingTriple*> element : mapP) {
-			MatchingTriple* mtCurrent = element.second;
-			double v = mtCurrent->dTopkOnlineValue =
-				(mtCurrent->iED + mtCurrent->iNextQueryIndex -
-					mtCurrent->iMatchingIndex) *
-				D_TAU_WEIGHT;
-			BasicTrieNode* n = mtCurrent->btnNode;
+class buffered_meta {
 
-			for (auto i = n->iMin; i < n->iMax; i++) {
-				r.push_back(make_pair(i, lst[i]->dStaticValue + v));
-			}
+	vector<pair<size_t, double >> buffer;
+	meta m;
+	string query;
+	int k;
+	float len;
+	int indx;
+public:
+	buffered_meta(string &query, int k) :m(query, k) {
+		this->query = query;
+		this->k = k;
+		this->len = (float)query.length();
+		for (auto x : m.res) {
+			buffer.push_back(make_pair(x.first, x.second / len));
 		}
-		auto it = r.begin();
-		for (int i = 0; i < k; i++) {
-		//	results.insert(trie::Dictionary[it->first]);
-			it++;
+		sort(buffer.begin(), buffer.end(), [](const pair <size_t, double> &x, const pair < size_t, double> &y) {
+			return x.second < y.second; });
+
+	}
+	pair<size_t, double > next() {
+		if (indx == buffer.size()) {// buffer.empty()) {
+			auto t = m.next();
+		
+			buffer.push_back({ t.first, t.second / len });
+
+		}
+		auto t = buffer[indx++];
+		//buffer.erase(buffer.begin());
+		return t;
+	}
+};
+
+class meta2 {
+
+	buffered_meta m;
+public:
+	meta2(string& query, int k) :m(query, k) {
+
+		for (int i = 0; i < 1000; i++)
+		{
+			auto t = m.next();
+			cout << t.first << " " << t.second << " " << trie::Dictionary[t.first] << endl;
+
 		}
 	}
+
 };
 
 class META {
@@ -261,13 +286,13 @@ public:
 #else
 			meta2 m(q, k);
 #endif
-			escape(&m.results());
+			//escape(&m.results());
 #ifdef __TEST__
-			for (auto x : m.results()) cout << "\t\t*" << x.first <<" " << x.second << endl;
-			cout << endl;
-			m.getnext();
-			for (auto x : m.results()) cout << "\t\t*" << x.first << " " << x.second << endl;
-			cout << endl;
+		//	for (auto x : m.results()) cout << "\t\t*" << x.first <<" " << x.second << endl;
+		//	cout << endl;
+		//	m.next();
+		//	for (auto x : m.results()) cout << "\t\t*" << x.first << " " << x.second << endl;
+		//	cout << endl;
 #endif
 #ifdef __STAT__
 			cnt = m.cnt;

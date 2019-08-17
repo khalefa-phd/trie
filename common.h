@@ -43,7 +43,7 @@ using namespace std;
 #ifdef __TEST__
 #define __DEBUG__
 #ifndef __GNUC__
-#define __1DIM__
+#define __2DIM__
 #endif
 #endif
 
