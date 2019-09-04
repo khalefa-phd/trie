@@ -10,12 +10,13 @@
 #include <string>
 #include <vector>
 
-#ifdef __GNUC__
+#include "machine.h"
+
+#ifdef LINUX
 #include <bits/stdc++.h>
 #endif
 
-extern const char* gitversion;
-#ifdef __GNUC__
+#ifdef LINUX
 #define __FILENAME__                                                           \
    (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1    \
                                      : __FILE__)
@@ -23,9 +24,14 @@ extern const char* gitversion;
 #define __FILENAME__ "TEST"
 #endif
 
+#ifndef __1DIM__
+#define __2DIM__
+#endif
+
 #if !defined(__STAT__) && !defined(__EXPR__)
 #define __TEST__
 #define REP 1
+//#define __2DIM__
 #endif
 
 #ifdef __STAT__
@@ -70,3 +76,6 @@ static void clobber(void* p) { asm volatile("" : : : "memory"); }
 static void escape(void* p) {}
 static void clobber(void* p) {}
 #endif
+
+
+extern const char* gitversion;

@@ -6,7 +6,7 @@
 // String node
 struct StringNode {
    double dStaticValue;
-   long lStringID;
+   size_t lStringID;
 };
 
 // trie node
@@ -17,8 +17,8 @@ struct BasicTrieNode {
    bool isEndOfWord;
    int iMinNodeID;
    int iMaxNodeID;
-   int iMin;
-   int iMax;
+   size_t iMin;
+   size_t iMax;
 
    double dTopkMinStaticValue;
    BasicTrieNode* btnParent;

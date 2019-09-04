@@ -3,7 +3,7 @@
 // DO NOT DELETE
 #include "matchingtriple.h"
 
-#ifndef __linux__
+#if defined( __linux__) && !defined(__APPLE__)
 const char* gitversion = "000";
 #endif
 
@@ -27,16 +27,16 @@ void readRandomFiles(string fileRandoms, vector<string>& randoms) {
 }
 
 int main(int argc, char** args) {
-
+    
 #ifdef __STAT__
    cout << "stat gathering mode\n";
 #endif
    cout << "1. Start" << endl;
 #ifdef __TEST__
-#ifdef __linux__
-   string dir = "./";
-#else
+#ifdef WINDOWS
    string dir = "../../";
+#else
+     string dir = "./";
 #endif
    string fileRecords = dir + "test";
    string file_csv = dir + "output";

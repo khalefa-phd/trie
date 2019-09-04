@@ -12,6 +12,7 @@ struct MatchingTriple {
 #ifdef __1DIM__
    inline double cost() const { return dTopkOnlineValue; }
 #endif
+    
 #ifdef __2DIM__
    inline double cost() const { return dTopkOnlineValue + dTopkStaticValue; }
 #endif

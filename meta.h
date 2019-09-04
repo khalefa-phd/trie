@@ -9,6 +9,7 @@ public:
 	map<size_t, int> res;
 	int k;
 	string query;
+    
 #ifdef __STAT__
 	size_t cnt = 0;
 	size_t max_mapp = 0;
@@ -80,7 +81,8 @@ protected:
 							[](const BasicTrieNode* element, const long value) {
 							return element->iID < value;
 						});
-						*/
+                    */
+                    
 					auto start = lst.begin();
 					for (; start != lst.end(); start++) {
 						BasicTrieNode* btnNode = *start;
@@ -137,7 +139,6 @@ protected:
 			else if (SecondDeducing(i, arrB[i] + 1, r))
 				arrB[i + 1] = arrB[i] + 1;
 		}
-
 	}
 
 	bool SecondDeducing(int i, int b, map<size_t, int> &r) {
@@ -220,6 +221,24 @@ protected:
 	map<BasicTrieNode*, int> mapH;
 };
 
+
+struct record {
+    size_t id;
+    double value;
+    bool eof;
+    record(size_t i, double v) {
+        id = i;
+        value = v;
+        eof=false;
+    }
+    bool operator <(const record &other) const {
+        return value < other.value;
+    }
+    record(){
+        eof=true;
+    }
+};
+
 class buffered_meta {
 
 	vector<pair<size_t, double >> buffer;
@@ -240,32 +259,181 @@ public:
 			return x.second < y.second; });
 
 	}
-	pair<size_t, double > next() {
+	record next() {
 		if (indx == buffer.size()) {// buffer.empty()) {
 			auto t = m.next();
-		
 			buffer.push_back({ t.first, t.second / len });
-
 		}
 		auto t = buffer[indx++];
 		//buffer.erase(buffer.begin());
-		return t;
+        return record(t.first,t.second);
 	}
 };
 
+
+struct score {
+    score() { flag = 0; }
+    double v[2];
+    int flag = 0;
+    //00
+    //10
+    //01
+    double best() const {
+        if (flag == 3) return (v[0] + v[1]) / 2;
+        else if (flag == 1) return v[0] / 2;
+        else if (flag == 2) return v[1] / 2;
+        return 1;
+    }
+    
+    double worst() const {
+        if (flag == 3) return (v[0] + v[1]) / 2;
+        else if (flag == 1) return (v[0] + high[1]) / 2;
+        else if (flag == 2) return (high[0] + v[1]) / 2;
+        return 0;
+    }
+    
+    void set(int i, double v) {
+        if (i == 0)flag |= 1;
+        else flag |= 2;
+        this->v[i] = v;
+    }
+    
+    bool operator <(const score &x) const {
+        if (worst() == x.worst()) {
+            return best() > x.best();
+        }
+        else
+            return worst() < x.worst();
+    }
+    static double high[2];
+};
+
+ostream& operator<<(ostream& out, const score &s) {
+    out << "{" ;
+    out <<  s.worst() << "-" << s.best() << "}";
+    return out;
+}
+
+double score::high[2];
+
+struct stringiterator{
+    size_t index=0;
+    vector<StringNode*> v;
+    stringiterator(vector<StringNode*>& vv )
+    {
+        v=vv;
+    }
+    record  next(){
+        StringNode * c=v[index];
+        index++;
+        return record(c->lStringID, c->dStaticValue);
+    }
+    
+};
+
 class meta2 {
-
 	buffered_meta m;
+    stringiterator lst;
+    
 public:
-	meta2(string& query, int k) :m(query, k) {
-
-		for (int i = 0; i < 1000; i++)
-		{
-			auto t = m.next();
-			cout << t.first << " " << t.second << " " << trie::Dictionary[t.first] << endl;
-
-		}
+    meta2(string& query, int k) :m(query, k) ,lst(trie::root->lstSortedStringNodes){
+        
+	    nra(k);
 	}
+    
+    record getnext(int i)
+    {
+        if(i==0)
+            return m.next();
+        else
+            return lst.next();
+        }
+    
+
+    set<pair<string, double>> results() {
+        set<pair<string, double>> r;
+        for (auto& x : res) r.insert({ trie::Dictionary[x.first], x.second});
+        return r;
+    }
+    map<size_t, double> res;
+    
+    
+    void nra(int k){
+        
+        int i=0;
+        map<size_t, score> w;
+        score::high[0] = score::high[1] = 0;
+        set<size_t> topkset;
+        vector<size_t> topk;
+        double threshold;
+        double min_k = 0;
+        while (true) {
+            record r =getnext(i);
+            score::high[i] = r.value;
+            
+            //compute score
+            if (w.find(r.id) == w.end()) { w[r.id] = score(); }
+            w[r.id].set(i, r.value);
+            double worstscore = w[r.id].worst();
+           // double bestscore = w[r.id].best();
+            
+            if (topk.size() < k) {
+                if (topkset.find(r.id) == topkset.end()) {
+                    topk.push_back(r.id);
+                    topkset.insert(r.id);
+                    
+                    sort(topk.begin(), topk.end(), [&](const size_t &x, const size_t &y) {
+                        return w[x].worst() < w[y].worst();
+                    });
+                    min_k = w[topk[0]].worst();
+                }
+            }
+            else
+                if (topk.size() >= k && worstscore > min_k) {
+                    if (topkset.find(r.id) == topkset.end()) {
+                        topk.push_back(r.id); topkset.insert(r.id);
+                        
+                        sort(topk.begin(), topk.end(), [&](const size_t &x, const size_t &y) {
+                            return w[x].worst() < w[y].worst();
+                        });
+                        topk.erase(topk.begin());
+                        min_k = w[topk[0]].worst();
+                    }
+                }
+            
+            auto me = *max_element(w.begin(), w.end(), [](const pair<size_t, score> &x, const pair<size_t, score> & y) {return x.second.best()<y.second.best(); });
+            threshold = me.second.best();
+#ifdef __DEBUG2__
+            cout << "+++++++++++++++++++++\n";
+            for (auto a : w) {
+                cout << a.first << ":" << a.second << endl;
+            }
+            
+            cout << "Threshold " << threshold << "\n";
+            cout << "min_k " << min_k << "\n";
+            cout << "topk";
+            for (auto x : topk)
+                cout << x << " ";
+            cout << endl;
+#endif
+            if (threshold >= min_k && topk.size() >= k) {
+                
+                res.clear();
+                for (auto x : topk) {
+                    res.insert(make_pair(x,w[x].best()));
+                }
+                break;
+            }
+            
+            i = i + 1;
+            i = i % 2;
+        }
+
+        
+    }
+    
+    size_t cnt;
+    size_t max_mapp;
 
 };
 
@@ -286,13 +454,13 @@ public:
 #else
 			meta2 m(q, k);
 #endif
-			//escape(&m.results());
+            auto r=m.results();
+            
+			escape(&r);
 #ifdef __TEST__
-		//	for (auto x : m.results()) cout << "\t\t*" << x.first <<" " << x.second << endl;
-		//	cout << endl;
-		//	m.next();
-		//	for (auto x : m.results()) cout << "\t\t*" << x.first << " " << x.second << endl;
-		//	cout << endl;
+			for (auto x : m.results()) cout << "\t\t*" << x.first <<" " << x.second << endl;
+			cout << endl;
+		
 #endif
 #ifdef __STAT__
 			cnt = m.cnt;
