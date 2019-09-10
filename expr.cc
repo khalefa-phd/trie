@@ -3,7 +3,7 @@
 // DO NOT DELETE
 #include "matchingtriple.h"
 
-#if defined( __linux__) && !defined(__APPLE__)
+#if defined(WINDOWS) 
 const char* gitversion = "000";
 #endif
 
@@ -31,6 +31,22 @@ int main(int argc, char** args) {
 #ifdef __STAT__
    cout << "stat gathering mode\n";
 #endif
+#ifdef __EXPR__
+   cout << "EXPR  mode\n";
+#endif
+#ifdef __TEST__
+   cout << "Test  mode\n";
+#endif
+
+#ifdef __1DIM__
+   cout << "1 dim is defined\n";
+#endif
+
+#ifdef __2DIM__
+   cout << "2 dim is defined\n";
+#endif
+
+
    cout << "1. Start" << endl;
 #ifdef __TEST__
 #ifdef WINDOWS
