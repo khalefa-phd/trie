@@ -6,6 +6,7 @@ public:
 		});
 		return r;
 	}
+    
 	map<size_t, int> res;
 	int k;
 	string query;
@@ -417,7 +418,7 @@ public:
             cout << endl;
 #endif
             if (threshold >= min_k && topk.size() >= k) {
-                
+            
                 res.clear();
                 for (auto x : topk) {
                     res.insert(make_pair(x,w[x].best()));
@@ -428,8 +429,6 @@ public:
             i = i + 1;
             i = i % 2;
         }
-
-        
     }
     
     size_t cnt;
