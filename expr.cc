@@ -111,7 +111,7 @@ int main(int argc, char** args) {
       for (auto k : Ks) {
          vector<pair<string, string>> results;
          cout << query << "\t" << k << endl;
-
+if (query.length()==0) continue;
          META::run("meta_nra0", results, query, k);
 
           DEPTH<mtcompare0>::run("depth0", results, query, k);
