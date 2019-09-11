@@ -363,12 +363,12 @@ public:
         
         int i=0;
         map<size_t, score> w;
-        score::high[0] = score::high[1] = 0;
         set<size_t> topkset;
         vector<size_t> topk;
         double threshold;
         double min_k = 0;
-        while (true) {
+        score::high[0] = score::high[1] = 0;
+	while (true) {
             record r =getnext(i);
             score::high[i] = r.value;
             
