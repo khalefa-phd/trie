@@ -18,8 +18,8 @@
 
 #ifdef LINUX
 #define __FILENAME__                                                           \
-   (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1    \
-                                     : __FILE__)
+  (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1     \
+                                    : __FILE__)
 #else
 #define __FILENAME__ "TEST"
 #endif
@@ -70,12 +70,11 @@ const double D_TOP_K_MAX_VALUE = 1000, D_TAU_WEIGHT = 0.5,
 #endif
 
 #ifdef __GNUC__
-static void escape(void* p) { asm volatile("" : : "g"(p) : "memory"); }
-static void clobber(void* p) { asm volatile("" : : : "memory"); }
+static void escape(void *p) { asm volatile("" : : "g"(p) : "memory"); }
+static void clobber(void *p) { asm volatile("" : : : "memory"); }
 #else
-static void escape(void* p) {}
-static void clobber(void* p) {}
+static void escape(void *p) {}
+static void clobber(void *p) {}
 #endif
 
-
-extern const char* gitversion;
+extern const char *gitversion;

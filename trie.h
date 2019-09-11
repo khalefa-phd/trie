@@ -5,42 +5,43 @@
 // Node
 // String node
 struct StringNode {
-   double dStaticValue;
-   size_t lStringID;
+  double dStaticValue;
+  size_t lStringID;
 };
 
 // trie node
 struct BasicTrieNode {
-   struct BasicTrieNode* children[ALPHABET_SIZE];
-   // isEndOfWord is true if the node represents
-   // end of a word
-   bool isEndOfWord;
-   int iMinNodeID;
-   int iMaxNodeID;
-   size_t iMin;
-   size_t iMax;
+  struct BasicTrieNode *children[ALPHABET_SIZE];
+  // isEndOfWord is true if the node represents
+  // end of a word
+  bool isEndOfWord;
+  int iMinNodeID;
+  int iMaxNodeID;
+  size_t iMin;
+  size_t iMax;
 
-   double dTopkMinStaticValue;
-   BasicTrieNode* btnParent;
-   long iID;
-   char btnCh;
-   int iDepth;
-   vector<StringNode*> lstSortedStringNodes;
-   BasicTrieNode(BasicTrieNode* ptn, int iCounter, char ch, int depth)
-       : btnParent{ptn}, iID{iCounter}, btnCh{ch}, iDepth{depth}, isEndOfWord{
-                                                                      false} {
-      for (int i = 0; i < ALPHABET_SIZE; i++) children[i] = NULL;
-   }
+  double dTopkMinStaticValue;
+  BasicTrieNode *btnParent;
+  long iID;
+  char btnCh;
+  int iDepth;
+  vector<StringNode *> lstSortedStringNodes;
+  BasicTrieNode(BasicTrieNode *ptn, int iCounter, char ch, int depth)
+      : btnParent{ ptn }, iID{ iCounter }, btnCh{ ch }, iDepth{ depth },
+        isEndOfWord{ false } {
+    for (int i = 0; i < ALPHABET_SIZE; i++)
+      children[i] = NULL;
+  }
 
-   int cnt() const;
+  int cnt() const;
 };
-ostream & operator<< (ostream & out, const BasicTrieNode& n); 
+ostream &operator<<(ostream &out, const BasicTrieNode &n);
 
 class trie {
- public:
-   static std::map<long, std::string> Dictionary;
-   static struct BasicTrieNode* root;
-   static vector<BasicTrieNode*> Index[100][ALPHABET_SIZE];
-   static void initalize(const string& strFileName);
-   static void print_stat(ofstream& o);
+public:
+  static std::map<long, std::string> Dictionary;
+  static struct BasicTrieNode *root;
+  static vector<BasicTrieNode *> Index[100][ALPHABET_SIZE];
+  static void initalize(const string &strFileName);
+  static void print_stat(ofstream &o);
 };
