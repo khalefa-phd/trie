@@ -73,7 +73,8 @@ protected:
       for (pair<BasicTrieNode *, MatchingTriple *> element : mapP) {
         update_stat();
         MatchingTriple *mtM = element.second;
-        mtM->iNextQueryIndex = i;
+        mtM->i
+          QueryIndex = i;
         for (int d = mtM->btnNode->iDepth + 1;
              d <= (mtM->btnNode->iDepth + 1 + arrB[i]); d++) {
           update_stat();
@@ -278,6 +279,8 @@ public:
       buffer.push_back({ t.first, t.second / len });
     }
     auto t = buffer[indx++];
+    if(t.first==-1 && t.second==-1)
+        return record();// return an eof record
     // buffer.erase(buffer.begin());
     return record(t.first, t.second);
   }
@@ -290,24 +293,24 @@ struct score {
   // 00
   // 10
   // 01
-  double best() const {
+  double worst() const {
     if (flag == 3)
       return (v[0] + v[1]) / 2;
     else if (flag == 1)
-      return v[0] / 2;
+      return (v[0]+1) / 2;
     else if (flag == 2)
-      return v[1] / 2;
+      return (1+v[1]) / 2;
     return 1;
   }
 
-  double worst() const {
+  double best() const {
     if (flag == 3)
       return (v[0] + v[1]) / 2;
     else if (flag == 1)
       return (v[0] + high[1]) / 2;
     else if (flag == 2)
       return (high[0] + v[1]) / 2;
-    return 0;
+    return (high[0]+high[1])/2;
   }
 
   void set(int i, double v) {
@@ -320,16 +323,25 @@ struct score {
 
   bool operator<(const score &x) const {
     if (worst() == x.worst()) {
-      return best() > x.best();
+      return best() < x.best();
     } else
       return worst() < x.worst();
   }
+
+  static score init(double x, double y){
+  
+   score s;
+    s.v[0]=x;
+  s.v[1]=y;
+  s.flag=3;
+  return s;
+}
   static double high[2];
 };
 
 ostream &operator<<(ostream &out, const score &s) {
   out << "{";
-  out << s.worst() << "-" << s.best() << "}";
+  out << s.best() << "-" << s.worst() << "}";
   return out;
 }
 
@@ -340,7 +352,9 @@ struct stringiterator {
   vector<StringNode *> v;
   stringiterator(vector<StringNode *> &vv) { v = vv; }
   record next() {
+    if(index==v.size()) return record();
     StringNode *c = v[index];
+    
     index++;
     return record(c->lStringID, c->dStaticValue);
   }
@@ -374,54 +388,45 @@ public:
 
   void nra(int k) {
 
-    int i = 0;
+    int i = 0; //
     map<size_t, score> w;
     set<size_t> topkset;
     vector<size_t> topk;
-    double threshold;
-    double min_k = 0;
-    score::high[0] = score::high[1] = 0;
-    while (true) {
+    double threshold=0;
+    double worst_score_in_topk = 1;
+    score::high[0] = score::high[1] = 0;//the best possible value
+    while (threshold>worst_score_in_topk) {
       record r = getnext(i);
+      if(r.eof) break;
       score::high[i] = r.value;
 
       // compute score
       if (w.find(r.id) == w.end()) {
         w[r.id] = score();
       }
+
       w[r.id].set(i, r.value);
-      double worstscore = w[r.id].worst();
-      // double bestscore = w[r.id].best();
-
-      if (topk.size() < k) {
-        if (topkset.find(r.id) == topkset.end()) {
+      
+      if(w[r.id].best() < worst_score_in_topk){
+      if (topkset.find(r.id) == topkset.end()) {
+        if(threshold>)
           topk.push_back(r.id);
           topkset.insert(r.id);
-
+      } 
+      }
+      
+      if (topk.size() >= k ) {
           sort(topk.begin(), topk.end(), [&](const size_t &x, const size_t &y) {
-            return w[x].worst() < w[y].worst();
+            return w[x] < w[y];
           });
-          min_k = w[topk[0]].worst();
-        }
-      } else if (topk.size() >= k && worstscore > min_k) {
-        if (topkset.find(r.id) == topkset.end()) {
-          topk.push_back(r.id);
-          topkset.insert(r.id);
-
-          sort(topk.begin(), topk.end(), [&](const size_t &x, const size_t &y) {
-            return w[x].worst() < w[y].worst();
-          });
-          topk.erase(topk.begin());
-          min_k = w[topk[0]].worst();
-        }
+      worst_score_in_topk=topk[k-1].worst();
       }
 
-      auto me =
-          *max_element(w.begin(), w.end(), [](const pair<size_t, score> &x,
-                                              const pair<size_t, score> &y) {
-             return x.second.best() < y.second.best();
-           });
-      threshold = me.second.best();
+      threshold = score().best();
+      i = i + 1;
+      i = i % 2;
+    }
+
 #ifdef __DEBUG2__
       cout << "+++++++++++++++++++++\n";
       for (auto a : w) {
@@ -429,24 +434,18 @@ public:
       }
 
       cout << "Threshold " << threshold << "\n";
-      cout << "min_k " << min_k << "\n";
+      cout << "min_k " << worst_score_in_topk << "\n";
       cout << "topk";
       for (auto x : topk)
-        cout << x << " ";
+        cout << x << " "<<w[x];
       cout << endl;
 #endif
-      if (threshold >= min_k && topk.size() >= k) {
-
+      
         res.clear();
         for (auto x : topk) {
           res.insert(make_pair(x, w[x].best()));
         }
-        break;
-      }
-
-      i = i + 1;
-      i = i % 2;
-    }
+      
   }
 
   size_t cnt;
