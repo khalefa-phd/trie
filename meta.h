@@ -73,8 +73,7 @@ protected:
       for (pair<BasicTrieNode *, MatchingTriple *> element : mapP) {
         update_stat();
         MatchingTriple *mtM = element.second;
-        mtM->i
-          QueryIndex = i;
+        mtM->iNextQueryIndex = i;
         for (int d = mtM->btnNode->iDepth + 1;
              d <= (mtM->btnNode->iDepth + 1 + arrB[i]); d++) {
           update_stat();
@@ -252,6 +251,13 @@ struct record {
   record() { eof = true; }
 };
 
+ostream &operator<<(ostream &out, const record &s) {
+  out << "{";
+  out << s.id << ":" << s.value << "  "<<s.eof<< "}";
+  return out;
+}
+
+
 class buffered_meta {
 
   vector<pair<size_t, double> > buffer;
@@ -279,9 +285,8 @@ public:
       buffer.push_back({ t.first, t.second / len });
     }
     auto t = buffer[indx++];
-    if(t.first==-1 && t.second==-1)
-        return record();// return an eof record
-    // buffer.erase(buffer.begin());
+    if (t.first == -1 && t.second == -1)
+      return record(); // return an eof record
     return record(t.first, t.second);
   }
 };
@@ -297,9 +302,9 @@ struct score {
     if (flag == 3)
       return (v[0] + v[1]) / 2;
     else if (flag == 1)
-      return (v[0]+1) / 2;
+      return (v[0] + 1) / 2;
     else if (flag == 2)
-      return (1+v[1]) / 2;
+      return (1 + v[1]) / 2;
     return 1;
   }
 
@@ -310,7 +315,7 @@ struct score {
       return (v[0] + high[1]) / 2;
     else if (flag == 2)
       return (high[0] + v[1]) / 2;
-    return (high[0]+high[1])/2;
+    return (high[0] + high[1]) / 2;
   }
 
   void set(int i, double v) {
@@ -328,14 +333,14 @@ struct score {
       return worst() < x.worst();
   }
 
-  static score init(double x, double y){
-  
-   score s;
-    s.v[0]=x;
-  s.v[1]=y;
-  s.flag=3;
-  return s;
-}
+  static score init(double x, double y) {
+
+    score s;
+    s.v[0] = x;
+    s.v[1] = y;
+    s.flag = 3;
+    return s;
+  }
   static double high[2];
 };
 
@@ -352,9 +357,10 @@ struct stringiterator {
   vector<StringNode *> v;
   stringiterator(vector<StringNode *> &vv) { v = vv; }
   record next() {
-    if(index==v.size()) return record();
+    if (index == v.size())
+      return record();
     StringNode *c = v[index];
-    
+
     index++;
     return record(c->lStringID, c->dStaticValue);
   }
@@ -392,12 +398,17 @@ public:
     map<size_t, score> w;
     set<size_t> topkset;
     vector<size_t> topk;
-    double threshold=0;
+    double threshold = 0;
     double worst_score_in_topk = 1;
-    score::high[0] = score::high[1] = 0;//the best possible value
-    while (threshold>worst_score_in_topk) {
+    score::high[0] = score::high[1] = 0; // the best possible value
+   
+    while (threshold< worst_score_in_topk) {
       record r = getnext(i);
-      if(r.eof) break;
+#ifdef __DEBUG2__ 
+	cout << i <<" \t " << r << "\n";  
+#endif
+    if (r.eof)
+        break;
       score::high[i] = r.value;
 
       // compute score
@@ -406,20 +417,23 @@ public:
       }
 
       w[r.id].set(i, r.value);
-      
-      if(w[r.id].best() < worst_score_in_topk){
-      if (topkset.find(r.id) == topkset.end()) {
-        if(threshold>)
+#ifdef __DEBUG2__
+	cout <<"score" << w[r.id] << "\n";
+#endif
+      if (w[r.id].best() < worst_score_in_topk) {
+        if (topkset.find(r.id) == topkset.end()) {
           topk.push_back(r.id);
           topkset.insert(r.id);
-      } 
+        }
       }
-      
-      if (topk.size() >= k ) {
-          sort(topk.begin(), topk.end(), [&](const size_t &x, const size_t &y) {
-            return w[x] < w[y];
-          });
-      worst_score_in_topk=topk[k-1].worst();
+
+      if (topk.size() >= k) {
+        sort(topk.begin(), topk.end(),
+             [&](const size_t &x, const size_t &y) { return w[x] < w[y]; });
+    cout << "topk";
+    for (auto x : topk)
+      cout << "\t" << x << " " << w[x] <<"\n";
+        worst_score_in_topk = w[topk[k - 1]].worst();
       }
 
       threshold = score().best();
@@ -428,24 +442,23 @@ public:
     }
 
 #ifdef __DEBUG2__
-      cout << "+++++++++++++++++++++\n";
-      for (auto a : w) {
-        cout << a.first << ":" << a.second << endl;
-      }
+    cout << "+++++++++++++++++++++\n";
+    for (auto a : w) {
+      cout << a.first << ":" << a.second << endl;
+    }
 
-      cout << "Threshold " << threshold << "\n";
-      cout << "min_k " << worst_score_in_topk << "\n";
-      cout << "topk";
-      for (auto x : topk)
-        cout << x << " "<<w[x];
-      cout << endl;
+    cout << "Threshold " << threshold << "\n";
+    cout << "min_k " << worst_score_in_topk << "\n";
+    cout << "topk";
+    for (auto x : topk)
+      cout << x << " " << w[x];
+    cout << endl;
 #endif
-      
-        res.clear();
-        for (auto x : topk) {
-          res.insert(make_pair(x, w[x].best()));
-        }
-      
+
+    res.clear();
+    for (auto x : topk) {
+      res.insert(make_pair(x, w[x].best()));
+    }
   }
 
   size_t cnt;

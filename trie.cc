@@ -57,7 +57,7 @@ void trie::initalize(const string &strFileName) {
     struct BasicTrieNode *pbtnParent = root;
 
 #ifdef __TEST__
-    cout << "length(" << strString << ")=" << strString.length() << "\n";
+   // cout << "length(" << strString << ")=" << strString.length() << "\n";
 #endif
 
     for (int i = 0; i < strString.length(); i++) {
