@@ -37,9 +37,13 @@ public:
     }
     delete[] arrB;
   }
+
   map<size_t, int> buffer;
+
   bool fillbuffer() {
+#ifdef __DEBUG3__
     cerr << "********* fill buffer ***********\n";
+#endif
     int i = query.length() - 1;
     if (SecondDeducing(i, arrB[i], buffer))
       return true;
@@ -49,11 +53,14 @@ public:
     } else
       return false;
   }
+
   pair<size_t, int> next() {
     static int cnt = 0;
     cnt++;
-    cerr << "**** meta _next **"
-         << "\n";
+#ifdef __DEBUG3__
+    cerr << "**** meta _next \n";
+#endif
+
     k++;
     if (buffer.size() == 0) {
       if (!fillbuffer())
@@ -61,7 +68,9 @@ public:
     }
     auto x = *buffer.begin();
     buffer.erase(buffer.begin());
+#ifdef __DEBUG3__
     cerr << "X=" << x.first << "\t" << x.second << "\n";
+#endif
     return x;
   }
 
@@ -89,17 +98,17 @@ protected:
              d <= (mtM->btnNode->iDepth + 1 + arrB[i]); d++) {
           update_stat();
           auto lst = trie::Index[d][query[i] - 'a'];
-
-          /*	vector<BasicTrieNode*>::iterator start =
+#ifdef LOWERBOUND
+          	vector<BasicTrieNode*>::iterator start =
              std::lower_bound(
                           lst.begin(), lst.end(), mtM->btnNode->iMinNodeID,
                           [](const BasicTrieNode* element, const long
              value) {
                           return element->iID < value;
                   });
-*/
-
+#else
           auto start = lst.begin();
+#endif
           for (; start != lst.end(); start++) {
             BasicTrieNode *btnNode = *start;
             update_stat();
@@ -114,7 +123,6 @@ protected:
             else
               iED = mtM->iED + (btnNode->iDepth - 1 - mtM->btnNode->iDepth);
             if (mapH.find(btnNode) != mapH.end()) {
-
               if (mapH[btnNode] > (iED))
                 mapH[btnNode] = iED;
             } else {
@@ -191,7 +199,8 @@ protected:
            d <= (mtM->btnNode->iDepth + 1 + b - mtM->iED); d++) {
 
         auto lst = trie::Index[d][query[i] - 'a'];
-        /*			vector<BasicTrieNode*>::iterator start =
+#ifdef LOWERBOUND
+        vector<BasicTrieNode*>::iterator start =
            std::lower_bound(
                                         lst.begin(), lst.end(),
            mtM->btnNode->iMinNodeID,
@@ -200,8 +209,10 @@ protected:
            long value) {
                                         return element->iID < value;
                                 });
-                                */
+#else
         auto start = lst.begin();
+#endif
+
         for (; start != lst.end(); start++) {
           BasicTrieNode *btnNode = *start;
           update_stat();
@@ -210,9 +221,6 @@ protected:
           if (btnNode->iID > mtM->btnNode->iMaxNodeID)
             break;
 
-          //					if (btnNode->iID >
-          // mtM->btnNode->iMaxNodeID)
-          // break;
           if ((i - 1 - mtM->iMatchingIndex) >
               (btnNode->iDepth - 1 - mtM->btnNode->iDepth))
             iED = mtM->iED + (i - 1 - mtM->iMatchingIndex);
@@ -278,6 +286,7 @@ class buffered_meta {
   int indx;
 
 public:
+
   buffered_meta(string &query, int k) : m(query, k) {
     this->indx = 0;
     this->query = query;
@@ -290,8 +299,11 @@ public:
          [](const pair<size_t, double> &x,
             const pair<size_t, double> &y) { return x.second < y.second; });
   }
+
   record next() {
+#ifdef __DEBUG3__
     cerr << "buffered meta next" << indx << "\t" << buffer.size() << "\n";
+#endif
     if (indx == buffer.size()) { // buffer.empty()) {
       auto t = m.next();
       buffer.push_back({ t.first, t.second / len });
@@ -346,13 +358,13 @@ struct score {
   }
 
   static score init(double x, double y) {
-
     score s;
     s.v[0] = x;
     s.v[1] = y;
     s.flag = 3;
     return s;
   }
+
   static double high[2];
 };
 
@@ -366,16 +378,39 @@ double score::high[2];
 
 struct stringiterator {
   size_t index = 0;
-  // vector<StringNode *> v;
-  stringiterator() {} // vector<StringNode *> &&vv) { v = vv; }
+#if 0
+  vector<StringNode *> v;
+  stringiterator(vector<StringNode *> &vv) { v = vv; }
+#else
+stringiterator(){}
+#endif
+
   record next() {
+
+#ifdef __DEBUG3__
     cerr << "string iterator" << index << "\t"
-         << trie::root->lstSortedStringNodes.size() << "\n";
-    ;
-    if (index == trie::root->lstSortedStringNodes.size())
+#if 0
+         << trie::root->lstSortedStringNodes.size()
+#else
+         << v.size()
+#endif
+         << "\n";
+#endif
+#if 0
+    if (index == v.size())
+#else
+if (index == trie::root->lstSortedStringNodes.size())
+#endif
       return record();
+#if 0
+StringNode *c =v[index];
+#else
     StringNode *c = trie::root->lstSortedStringNodes[index];
+#endif
+
+#ifdef __DEBUG3__
     cerr << "\t" << c->lStringID << "\t" << c->dStaticValue << "\n";
+#endif
     index++;
     return record(c->lStringID, c->dStaticValue);
   }
@@ -416,15 +451,13 @@ public:
     double threshold = 0;
     double worst_score_in_topk = 1;
     score::high[0] = score::high[1] = 0; // the best possible value
-    // while (threshold< worst_score_in_topk) {
-    for (int j = 0; j < 2 * k; j++) {
+
+     while (threshold< worst_score_in_topk) {
       record r = getnext(i);
 #ifdef __DEBUG2__
       cerr << i << " \t " << r << "\n";
 #endif
-      if (r.eof)
-        break;
-#if 0
+      if (r.eof)break;
       score::high[i] = r.value;
 
       // compute score
@@ -436,7 +469,7 @@ public:
 #ifdef __DEBUG2__
 	cerr <<"score" << w[r.id] << "\n";
 #endif
-#ifdef AA  
+
     if (w[r.id].best() < worst_score_in_topk) {
         if (topkset.find(r.id) == topkset.end()) {
           topk.push_back(r.id);
@@ -447,19 +480,20 @@ public:
       if (topk.size() >= k) {
         sort(topk.begin(), topk.end(),
              [&](const size_t &x, const size_t &y) { return w[x] < w[y]; });
+#ifdef __DEBUG3__
     cerr << "topk";
     for (auto x : topk)
       cerr << "\t" << x << " " << w[x] <<"\n";
+#endif
         worst_score_in_topk = w[topk[k - 1]].worst();
       }
-#endif
-#endif
       threshold = score().best();
       i = i + 1;
       i = i % 2;
+#ifdef __DEBUG3__
       cerr << "threshold " << threshold << "\n";
+#endif
     }
-    return;
 #ifdef __DEBUG2__
     cerr << "+++++++++++++++++++++\n";
     for (auto a : w) {
