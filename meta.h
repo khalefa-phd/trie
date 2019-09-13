@@ -37,21 +37,32 @@ public:
     }
     delete[] arrB;
   }
-
+  map<size_t, int> buffer;
+  bool fillbuffer() {
+    cerr << "********* fill buffer ***********\n";
+    int i = query.length() - 1;
+    if (SecondDeducing(i, arrB[i], buffer))
+      return true;
+    else if (SecondDeducing(i, arrB[i] + 1, buffer)) {
+      arrB[i]++;
+      return true;
+    } else
+      return false;
+  }
   pair<size_t, int> next() {
     static int cnt = 0;
     cnt++;
-    int i = query.length() - 1;
+    cerr << "**** meta _next **"
+         << "\n";
     k++;
-    map<size_t, int> r;
-    if (SecondDeducing(i, arrB[i], r))
-      ;
-    else if (SecondDeducing(i, arrB[i] + 1, r))
-      arrB[i]++;
-    else
-      return make_pair(-1, -1);
-
-    return *r.begin();
+    if (buffer.size() == 0) {
+      if (!fillbuffer())
+        return make_pair(-1, -1);
+    }
+    auto x = *buffer.begin();
+    buffer.erase(buffer.begin());
+    cerr << "X=" << x.first << "\t" << x.second << "\n";
+    return x;
   }
 
   int bound() { return arrB[query.length() - 1]; }
@@ -152,13 +163,13 @@ protected:
     MatchingTriple *mtTemp;
     map<BasicTrieNode *, int> mapH;
 #ifdef __DEBUG2__
-    cout << "SecondDeducing\n";
+    cerr << "SecondDeducing\n";
 #endif
     for (pair<BasicTrieNode *, MatchingTriple *> element : mapP) {
 #ifdef __DEBUG2__
       {
         MatchingTriple *mt = element.second;
-        cout << "\t" << (*mt) << "\n";
+        cerr << "\t" << (*mt) << "\n";
       }
 #endif
       update_stat();
@@ -216,7 +227,7 @@ protected:
             }
           }
 #ifdef __DEBUG2__
-          cout << "\t\t" << (*btnNode) << "---" << iED << "\n";
+          cerr << "\t\t" << (*btnNode) << "---" << iED << "\n";
 #endif
         }
       }
@@ -253,10 +264,9 @@ struct record {
 
 ostream &operator<<(ostream &out, const record &s) {
   out << "{";
-  out << s.id << ":" << s.value << "  "<<s.eof<< "}";
+  out << s.id << ":" << s.value << "  " << s.eof << "}";
   return out;
 }
-
 
 class buffered_meta {
 
@@ -269,6 +279,7 @@ class buffered_meta {
 
 public:
   buffered_meta(string &query, int k) : m(query, k) {
+    this->indx = 0;
     this->query = query;
     this->k = k;
     this->len = (float)query.length();
@@ -280,12 +291,13 @@ public:
             const pair<size_t, double> &y) { return x.second < y.second; });
   }
   record next() {
+    cerr << "buffered meta next" << indx << "\t" << buffer.size() << "\n";
     if (indx == buffer.size()) { // buffer.empty()) {
       auto t = m.next();
       buffer.push_back({ t.first, t.second / len });
     }
     auto t = buffer[indx++];
-    if (t.first == -1 && t.second == -1)
+    if (t.first == -1)
       return record(); // return an eof record
     return record(t.first, t.second);
   }
@@ -354,13 +366,16 @@ double score::high[2];
 
 struct stringiterator {
   size_t index = 0;
-  vector<StringNode *> v;
-  stringiterator(vector<StringNode *> &vv) { v = vv; }
+  // vector<StringNode *> v;
+  stringiterator() {} // vector<StringNode *> &&vv) { v = vv; }
   record next() {
-    if (index == v.size())
+    cerr << "string iterator" << index << "\t"
+         << trie::root->lstSortedStringNodes.size() << "\n";
+    ;
+    if (index == trie::root->lstSortedStringNodes.size())
       return record();
-    StringNode *c = v[index];
-
+    StringNode *c = trie::root->lstSortedStringNodes[index];
+    cerr << "\t" << c->lStringID << "\t" << c->dStaticValue << "\n";
     index++;
     return record(c->lStringID, c->dStaticValue);
   }
@@ -372,7 +387,7 @@ class meta2 {
 
 public:
   meta2(string &query, int k)
-      : m(query, k), lst(trie::root->lstSortedStringNodes) {
+      : m(query, k), lst() { // trie::root->lstSortedStringNodes) {
 
     nra(k);
   }
@@ -401,14 +416,15 @@ public:
     double threshold = 0;
     double worst_score_in_topk = 1;
     score::high[0] = score::high[1] = 0; // the best possible value
-   
-    while (threshold< worst_score_in_topk) {
+    // while (threshold< worst_score_in_topk) {
+    for (int j = 0; j < 2 * k; j++) {
       record r = getnext(i);
-#ifdef __DEBUG2__ 
-	cout << i <<" \t " << r << "\n";  
+#ifdef __DEBUG2__
+      cerr << i << " \t " << r << "\n";
 #endif
-    if (r.eof)
+      if (r.eof)
         break;
+#if 0
       score::high[i] = r.value;
 
       // compute score
@@ -418,9 +434,10 @@ public:
 
       w[r.id].set(i, r.value);
 #ifdef __DEBUG2__
-	cout <<"score" << w[r.id] << "\n";
+	cerr <<"score" << w[r.id] << "\n";
 #endif
-      if (w[r.id].best() < worst_score_in_topk) {
+#ifdef AA  
+    if (w[r.id].best() < worst_score_in_topk) {
         if (topkset.find(r.id) == topkset.end()) {
           topk.push_back(r.id);
           topkset.insert(r.id);
@@ -430,29 +447,31 @@ public:
       if (topk.size() >= k) {
         sort(topk.begin(), topk.end(),
              [&](const size_t &x, const size_t &y) { return w[x] < w[y]; });
-    cout << "topk";
+    cerr << "topk";
     for (auto x : topk)
-      cout << "\t" << x << " " << w[x] <<"\n";
+      cerr << "\t" << x << " " << w[x] <<"\n";
         worst_score_in_topk = w[topk[k - 1]].worst();
       }
-
+#endif
+#endif
       threshold = score().best();
       i = i + 1;
       i = i % 2;
+      cerr << "threshold " << threshold << "\n";
     }
-
+    return;
 #ifdef __DEBUG2__
-    cout << "+++++++++++++++++++++\n";
+    cerr << "+++++++++++++++++++++\n";
     for (auto a : w) {
-      cout << a.first << ":" << a.second << endl;
+      cerr << a.first << ":" << a.second << endl;
     }
 
-    cout << "Threshold " << threshold << "\n";
-    cout << "min_k " << worst_score_in_topk << "\n";
-    cout << "topk";
+    cerr << "Threshold " << threshold << "\n";
+    cerr << "min_k " << worst_score_in_topk << "\n";
+    cerr << "topk";
     for (auto x : topk)
-      cout << x << " " << w[x];
-    cout << endl;
+      cerr << x << " " << w[x];
+    cerr << endl;
 #endif
 
     res.clear();
@@ -487,8 +506,8 @@ public:
       escape(&r);
 #ifdef __TEST__
       for (auto x : m.results())
-        cout << "\t\t*" << x.first << " " << x.second << endl;
-      cout << endl;
+        cerr << "\t\t*" << x.first << " " << x.second << endl;
+      cerr << endl;
 
 #endif
 #ifdef __STAT__
