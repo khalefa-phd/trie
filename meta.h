@@ -389,7 +389,7 @@ stringiterator(){}
 
 #ifdef __DEBUG3__
     cerr << "string iterator" << index << "\t"
-#if 0
+#if 1
          << trie::root->lstSortedStringNodes.size()
 #else
          << v.size()
