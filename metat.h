@@ -45,6 +45,11 @@ public:
 protected:
 	
 	void batch() {
+#ifdef __DEBUG__
+		cout << "Threshold META (" << iThreshold <<")\n";
+#endif		
+
+
 		MatchingTriple *mtTemp = new MatchingTriple(0, trie::root, 0, false);
 		map<BasicTrieNode *, MatchingTriple *> mapPNew;
 		mapP[trie::root] = mtTemp;
@@ -73,6 +78,7 @@ protected:
 #else
 					auto start = lst.begin();
 #endif
+					
 					for (; start != lst.end(); start++) {
 						BasicTrieNode *btnNode = *start;
 						update_stat();
@@ -86,6 +92,7 @@ protected:
 							iED = mtM->iED + (i - 1 - mtM->iMatchingIndex);
 						else
 							iED = mtM->iED + (btnNode->iDepth - 1 - mtM->btnNode->iDepth);
+						if(iED <=iThreshold){
 						if (mapH.find(btnNode) != mapH.end()) {
 							if (mapH[btnNode] > (iED))
 								mapH[btnNode] = iED;
@@ -93,6 +100,7 @@ protected:
 						else {
 							mapH[btnNode] = iED;
 						}
+					}
 					}
 				}
 			}

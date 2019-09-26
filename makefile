@@ -4,8 +4,15 @@ CFLAGS= -std=c++11 -march=native
 LDIR =../lib
 EXPR=../expr
 LIBS=
+FILES=trie.cc expr.cc gitversion.c
+EXPRFLAGS= -O3 -D__EXPR__ $(CFLAGS)
+STATFLAGS= -D__STAT__ $(CFLAGS)
+TESTFLAGS=-D__TEST__ -D__DEBUG3__ -D__DEBUG2__ -D__DEBUG__ $(CFLAGS)
 
-ALL:  gitversion.c v1dim v2dim s1dim t1dim t2dim s2dim
+DIM1FLGAS=-D__1DIM__
+DIM2FLGAS=-D__2DIM__
+
+ALL: gitversion.c 1dim 2dim
 
 
 prepare:
@@ -21,33 +28,43 @@ prepare:
 gitversion.c: .git/HEAD .git/index
 	echo "const char *gitversion = \"$(shell git rev-parse HEAD)\";" > $@
 
+1dim:e1dim s1dim t1dim oe1dim ot1dim
 
-v1dim:trie.cc expr.cc gitversion.c meta.h trie.h common.h
-	$(CC) -o $(EXPR)/$@ -O3 -D__TOPK__  -D__1DIM__ -D__EXPR__ trie.cc expr.cc gitversion.c $(CFLAGS) $(LIBS)
+2dim:e2dim s2dim t2dim oe2dim ot2dim
 
-o1dim:trie.cc expr.cc gitversion.c meta.h trie.h common.h
-	$(CC) -o $(EXPR)/$@ -O3 -D__THRESHOLD__  -D__1DIM__ -D__EXPR__ trie.cc expr.cc gitversion.c $(CFLAGS) $(LIBS)
+e1dim:$(FILES)
+	$(CC) -o $(EXPR)/$@ -D__TOPK__ $(DIM1FLGAS) $(EXPRFLAGS) $(FILES) $(LIBS)
 
-s1dim:trie.cc expr.cc gitversion.c
-		$(CC) -o $(EXPR)/$@  -D__TOPK__ -D__1DIM__ -D__STAT__ trie.cc expr.cc gitversion.c $(CFLAGS) $(LIBS)
+s1dim:$(FILES)
+	$(CC) -o $(EXPR)/$@ -D__TOPK__ $(DIM1FLGAS) $(STATFLAGS) $(FILES) $(LIBS)
 
-t1dim:trie.cc expr.cc gitversion.c
-		$(CC) -o $(EXPR)/$@  -D__TOPK__ -D__1DIM__ -D__TEST__ trie.cc expr.cc gitversion.c $(CFLAGS) $(LIBS)
+t1dim:$(FILES)
+	$(CC) -o $(EXPR)/$@ -D__TOPK__ $(DIM1FLGAS) $(TESTFLAGS) $(FILES) $(LIBS)
 
-v1dim:trie.cc expr.cc gitversion.c meta.h trie.h common.h
-	$(CC) -o $(EXPR)/$@ -O3 -D__TOPK__  -D__1DIM__ -D__EXPR__ trie.cc expr.cc gitversion.c $(CFLAGS) $(LIBS)
+e2dim:$(FILES)
+		$(CC) -o $(EXPR)/$@ -D__TOPK__ $(DIM2FLAGS) $(EXPRFLAGS) $(FILES) $(LIBS)
 
+s2dim:$(FILES)
+		$(CC) -o $(EXPR)/$@ -D__TOPK__ $(DIM2FLAGS) $(STATFLAGS) $(FILES) $(LIBS)
 
-v2dim:trie.cc expr.cc gitversion.c
-		$(CC) -o $(EXPR)/$@ -O3 -D__TOPK__  -D__2DIM__ -D__EXPR__ trie.cc expr.cc gitversion.c $(CFLAGS) $(LIBS)
+t2dim:$(FILES)
+	$(CC) -O3 -o $(EXPR)/$@  -D__TOPK__ $(DIM2FLAGS) $(TESTFLAGS) $(FILES) $(LIBS)
 
-s2dim:trie.cc expr.cc gitversion.c meta.h
-		$(CC) -o $(EXPR)/$@  -D__2DIM__ -D__TOPK__  -D__STAT__ trie.cc expr.cc gitversion.c $(CFLAGS) $(LIBS)
+oe1dim:$(FILES)
+	$(CC) -o $(EXPR)/$@ -D__THRESHOLD__ $(DIM1FLGAS) $(EXPRFLAGS) $(FILES) $(LIBS)
 
-t2dim:trie.cc expr.cc gitversion.c meta.h
-	$(CC) -O3 -o $(EXPR)/$@ -D__DEBUG3__ -D__TOPK__  -D__DEBUG2__  -D__2DIM__ -D__TEST__ trie.cc expr.cc gitversion.c $(CFLAGS) $(LIBS)
+ot1dim:$(FILES)
+	$(CC) -o $(EXPR)/$@ -D__THRESHOLD__ $(DIM1FLGAS) $(TESTFLAGS) $(FILES) $(LIBS)
+
+oe2dim:$(FILES)
+	$(CC) -o $(EXPR)/$@ -D__THRESHOLD__ $(DIM2FLGAS) $(EXPRFLAGS) $(FILES) $(LIBS)
+
+ot2dim:$(FILES)
+	$(CC) -o $(EXPR)/$@ -D__THRESHOLD__ $(DIM2FLGAS) $(TESTFLAGS) $(FILES) $(LIBS)
 
 .PHONY: clean
 
 clean:
-	rm -f *.o $(EXPR)/v1dim  $(EXPR)/o1dim $(EXPR)/t1dim $(EXPR)/s1dim $(EXPR)/v2dim  $(EXPR)/s2dim $(EXPR)/t2dim  gitversion.c
+	rm -f *.o gitversion.c
+	rm -f $(EXPR)/e1dim $(EXPR)/oe1dim $(EXPR)/t1dim $(EXPR)/s1dim $(EXPR)/oe1dim
+	rm -f $(EXPR)/e2dim $(EXPR)/s2dim $(EXPR)/t2dim 

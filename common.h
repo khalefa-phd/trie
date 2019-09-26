@@ -25,13 +25,16 @@
 #endif
 
 #ifndef __1DIM__
+  #ifndef __2DIM__
 #define __2DIM__
+  #endif
 #endif
 
 #if !defined(__STAT__) && !defined(__EXPR__)
+#ifndef __TEST__
 #define __TEST__
+ #endif
 #define REP 1
-//#define __2DIM__
 #endif
 
 #ifdef __STAT__
@@ -47,10 +50,10 @@
 using namespace std;
 
 #ifdef __TEST__
+#ifndef __DEBUG__
 #define __DEBUG__
-#ifndef __GNUC__
-#define __2DIM__
 #endif
+
 #endif
 
 const int ALPHABET_SIZE = 26;
@@ -67,6 +70,10 @@ const double D_TOP_K_MAX_VALUE = 1000, D_TAU_WEIGHT = 0.5,
 #else
 #error Define either 1dim or 2 dim
 #endif
+#endif
+
+#if defined(__1DIM__) && defined(__2DIM__)
+	#error Only one 
 #endif
 
 #ifdef __GNUC__
