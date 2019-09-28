@@ -12,13 +12,13 @@ public:
 	string query;
 	map<size_t, int> buffer;
 	int iThreshold;
-    map<BasicTrieNode *, MatchingTriple *> mapP;
-  map<BasicTrieNode *, int> mapH; 
- 
+	map<BasicTrieNode *, MatchingTriple *> mapP;
+	map<BasicTrieNode *, int> mapH;
+
 
 	meta_threshold(string query, int iThreshold) {
 		this->query = query;
-		this->iThreshold=iThreshold;
+		this->iThreshold = iThreshold;
 		batch();
 	}
 
@@ -43,17 +43,18 @@ public:
 #endif
 
 protected:
-	
+
 	void batch() {
 #ifdef __DEBUG__
-		cout << "Threshold META (" << iThreshold <<")\n";
+		cout << "Threshold META (" << iThreshold << ")\n";
 #endif		
 
 
 		MatchingTriple *mtTemp = new MatchingTriple(0, trie::root, 0, false);
 		map<BasicTrieNode *, MatchingTriple *> mapPNew;
 		mapP[trie::root] = mtTemp;
-		for (int i = 0; i < query.length(); i++) {
+		int i = 0;
+		for (; i < query.length(); i++) {
 			///////////////First Deducing/////////////////
 			res.clear();
 			mapH.clear();
@@ -78,7 +79,6 @@ protected:
 #else
 					auto start = lst.begin();
 #endif
-					
 					for (; start != lst.end(); start++) {
 						BasicTrieNode *btnNode = *start;
 						update_stat();
@@ -92,7 +92,6 @@ protected:
 							iED = mtM->iED + (i - 1 - mtM->iMatchingIndex);
 						else
 							iED = mtM->iED + (btnNode->iDepth - 1 - mtM->btnNode->iDepth);
-						if(iED <=iThreshold){
 						if (mapH.find(btnNode) != mapH.end()) {
 							if (mapH[btnNode] > (iED))
 								mapH[btnNode] = iED;
@@ -101,27 +100,25 @@ protected:
 							mapH[btnNode] = iED;
 						}
 					}
-					}
 				}
 			}
 			mapPNew.clear();
 			for (pair<BasicTrieNode *, int> entry : mapH) {
 				update_stat();
-				mtTemp = new MatchingTriple(i + 1, entry.first, entry.second, false);
-				mapPNew[entry.first] = mtTemp;
+				MatchingTriple *mtM = new MatchingTriple(i + 1, entry.first, entry.second, false);
+				mapPNew[entry.first] = mtM;
 			}
 			for (pair<BasicTrieNode *, MatchingTriple *> element : mapP) {
 				update_stat();
 				MatchingTriple *mtM = element.second;
 				if ((mtM->iED + i - (mtM->iMatchingIndex - 1)) < iThreshold)
-					mapPNew[element.first] = mtTemp;
+					mapPNew[element.first] = mtM;
 			}
 			mapP.clear();
 			mapP = mapPNew;
 		}
 		for (pair<BasicTrieNode *, MatchingTriple *> element : mapP) {
 			update_stat();
-			int i=query.length()-1;
 			MatchingTriple *mtM = element.second;
 			for (int w = mtM->btnNode->iMin; w <= mtM->btnNode->iMax; w++) {
 				if (res.find(w) == res.end())
@@ -133,4 +130,3 @@ protected:
 		}
 	}
 };
-
